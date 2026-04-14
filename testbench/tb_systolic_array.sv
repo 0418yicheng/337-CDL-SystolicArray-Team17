@@ -59,18 +59,23 @@ module tb_systolic_array ();
     endtask
 
     task write_inputs;
-        input logic [63:0] in;
+        input logic [63:0] in [7:0];
         integer i;
         begin
-            @(negedge clk);
-            load_inputs = 1;
-            inputs = in;
+            for(i = 0; i < 8; i++) begin
+                @(negedge clk);
+                load_inputs = 1;
+                inputs = in[i];
 
-            #(CLK_PERIOD * 10);
-
-            @(negedge clk);
-            load_inputs = 0;
+                @(negedge clk);
+                load_inputs = 0;
+                
+                #(2*CLK_PERIOD);
+            end
         end
+
+        #(CLK_PERIOD * 15);
+        #(CLK_PERIOD * 2);
     endtask
 
     initial begin
@@ -81,11 +86,31 @@ module tb_systolic_array ();
 
         reset_dut;
 
-        write_weights({{64'h0001}, {64'h0008}, {64'h0010}, {64'h0080}, {64'h0100}, {64'h0800}, {64'h1000}, {64'h8000}});
+        write_weights('{
+            64'h01_00_00_00_00_00_00_00, // Row 0: Only byte 0 is 1
+            64'h00_01_00_00_00_00_00_00, // Row 1: Only byte 1 is 1
+            64'h00_00_01_00_00_00_00_00, // Row 2: ...
+            64'h00_00_00_01_00_00_00_00,
+            64'h00_00_00_00_01_00_00_00,
+            64'h00_00_00_00_00_01_00_00,
+            64'h00_00_00_00_00_00_01_00,
+            64'h00_00_00_00_00_00_00_01  // Row 7: Only byte 7 is 1
+        });
+
+        
 
         #(CLK_PERIOD * 2)
 
-        // write_inputs(64'd000000000000000000000000000000000000100000000110000001000000001);
+        write_inputs('{
+            64'h01_01_02_03_04_05_06_07, // Row 0
+            64'h08_09_0A_0B_0C_0D_0E_0F, // Row 1
+            64'h10_11_12_13_14_15_16_17, // Row 2
+            64'h18_19_1A_1B_1C_1D_1E_1F, // Row 3
+            64'h20_21_22_23_24_25_26_27, // Row 4
+            64'h28_29_2A_2B_2C_2D_2E_2F, // Row 5
+            64'h30_31_32_33_34_35_36_37, // Row 6
+            64'h38_39_3A_3B_3C_3D_3E_3F  // Row 7
+        });
 
         $finish;
     end

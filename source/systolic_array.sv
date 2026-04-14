@@ -36,6 +36,23 @@ module systolic_array #(
     state_t state;
     state_t n_state;
 
+    always_comb begin : SysArrMath //TODO: Check if CLKs line up. Also, consider putting shifting A into here
+        n_sys_array = sys_array;
+        if(state != WAIT) begin
+            //Do math for top PEs
+            for(int i = 0; i < 8; i++) begin
+                n_sys_array[0][i] = weights_mat[0][i]*a_mat[i][0];
+            end
+            //Do the math for other PEs
+            for(int i = 1; i < 8; i++) begin
+                for(int j = 0; j < 8; j++) begin
+                    //Multiply left by weight and add to top
+                    n_sys_array[i][j] = weights_mat[i][j]*a_mat[i][j] + sys_array[i-1][j];
+                end
+            end
+        end
+    end
+
     always_comb begin : FSM
         nan = 0;
         inf = 0;
@@ -131,21 +148,20 @@ module systolic_array #(
                 n_in[3'(in_count-4'd1)] = inputs;
                 for(int i = 0; i < 8; i++) begin
                     if(i < in_count)
-                        n_a[i][0] = in[3'(in_count - 4'(i) - 4'd1)][i];
+                        n_a[i][0] = n_in[3'(in_count - 4'(i) - 4'd1)][i];
                 end
 
                 n_in_count = in_count + 4'd1;
-                if(n_in_count > 8) begin
-                    n_in_count = 1;
-                    n_state = CALC;
-                end
-                else
-                    n_state = WAIT;
+                n_state = WAIT;
             end
 
             WAIT: begin
                 if(load_inputs)
                     n_state = ILOAD;
+                else if(in_count > 8) begin
+                    n_in_count = 1;
+                    n_state = CALC;
+                end
             end
 
             CALC: begin
@@ -153,7 +169,7 @@ module systolic_array #(
                 busy = 1;
                 for(int i = 0; i < 8; i++) begin
                     if(i < out_count) begin
-                        n_out[i][3'(out_count - 4'(i) - 4'd1)] = sys_array[7][i];
+                        n_out[3'(out_count - 4'(i) - 4'd1)][i] = n_sys_array[7][i];
                     end
                 end
                 n_out_count = out_count + 4'd1;
@@ -166,7 +182,7 @@ module systolic_array #(
                 busy = 1;
                 for(int i = 7; i >= 0; i--) begin
                     if(i >= 3'(4'd8 - out_count))
-                        n_out[i][3'(4'd8 - out_count + 4'd8 - 4'(i) - 4'd1)] = sys_array[7][i];
+                        n_out[3'(4'd8 - out_count + 4'd8 - 4'(i) - 4'd1)][i] = n_sys_array[7][i];
                 end
                 done = 1;
                 outputs = out[3'(4'd8-out_count)];
@@ -182,23 +198,6 @@ module systolic_array #(
             end
 
         endcase
-    end
-
-    always_comb begin : SysArrMath
-        n_sys_array = sys_array;
-        if(state != WAIT) begin
-            //Do math for top PEs
-            for(int i = 0; i < 8; i++) begin
-                n_sys_array[0][i] = weights_mat[0][i]*a_mat[i][0];
-            end
-            //Do the math for other PEs
-            for(int i = 1; i < 8; i++) begin
-                for(int j = 0; j < 8; j++) begin
-                    //Multiply left by weight and add to top
-                    n_sys_array[i][j] = weights_mat[i][j]*a_mat[i][j] + sys_array[i-1][j];
-                end
-            end
-        end
     end
 
     always_ff @(posedge clk, negedge n_rst) begin : FF

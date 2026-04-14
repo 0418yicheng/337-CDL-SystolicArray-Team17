@@ -11,13 +11,17 @@ add wave -noupdate /tb_systolic_array/outputs
 add wave -noupdate /tb_systolic_array/busy
 add wave -noupdate /tb_systolic_array/done
 add wave -noupdate /tb_systolic_array/DUT/weights_mat
-add wave -noupdate /tb_systolic_array/DUT/input_mat
-add wave -noupdate /tb_systolic_array/DUT/sys_array
+add wave -noupdate -expand /tb_systolic_array/DUT/a_mat
+add wave -noupdate -expand /tb_systolic_array/DUT/sys_array
+add wave -noupdate /tb_systolic_array/DUT/state
+add wave -noupdate /tb_systolic_array/DUT/in
+add wave -noupdate /tb_systolic_array/DUT/out
+add wave -noupdate /tb_systolic_array/DUT/n_sys_array
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {55205 ps} 0}
+WaveRestoreCursors {{Cursor 1} {465231 ps} 0}
 quietly wave cursor active 1
-configure wave -namecolwidth 150
-configure wave -valuecolwidth 100
+configure wave -namecolwidth 101
+configure wave -valuecolwidth 272
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
@@ -30,4 +34,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {11788 ps}
+WaveRestoreZoom {0 ps} {24457 ps}
