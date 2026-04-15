@@ -168,13 +168,24 @@ module systolic_array #(
                 // sys_calc_flag = 1;
                 busy = 1;
                 for(int i = 0; i < 8; i++) begin
+                    //Load outputs into out_matrix
                     if(i < out_count) begin
                         n_out[3'(out_count - 4'(i) - 4'd1)][i] = n_sys_array[7][i];
                     end
                 end
+
+                //Continue shifting inputs
+                for(int i = 7; i >= 0; i--) begin
+                    if(i >= out_count)
+                        n_a[i][0] = in[3'(4'd7 - 4'(i) + out_count)][i];
+                end
+
                 n_out_count = out_count + 4'd1;
-                if(n_out_count == 4'd8)
+                if(out_count == 4'd8) begin
                     n_state = OLOAD;
+                    n_out_count = 4'd7;
+                end
+                
             end
 
             OLOAD: begin
@@ -185,7 +196,7 @@ module systolic_array #(
                         n_out[3'(4'd8 - out_count + 4'd8 - 4'(i) - 4'd1)][i] = n_sys_array[7][i];
                 end
                 done = 1;
-                outputs = out[3'(4'd8-out_count)];
+                outputs = n_out[3'(4'd8-out_count)];
                 n_out_count = out_count - 1;
 
                 if(n_out_count == 0) begin
