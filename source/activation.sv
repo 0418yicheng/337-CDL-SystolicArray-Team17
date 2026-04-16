@@ -7,7 +7,8 @@ module activation #(
     input logic [3:0] activation_mode,
     input logic [63:0] biased_outputs,
     input logic bias_done,
-    output logic [63:0] activation_outputs
+    output logic [63:0] activation_outputs,
+    output logic activation_done
 );
 
     typedef enum logic[3:0] {IDLE, CALC} state_t;
@@ -17,12 +18,14 @@ module activation #(
     logic [3:0] count;
 
     always_comb begin
+        n_count = count;
         n_state = state;
         case(state)
             IDLE: begin
                 if(bias_done)
                     n_state = CALC;
                 activation_outputs = 64'd0;
+                activation_done = 0;
             end
             CALC: begin
                 if(activation_mode == 0) begin  //RELU
@@ -50,6 +53,8 @@ module activation #(
                 end
                 else
                     n_count = count + 1;
+
+                activation_done = 1;
             end
         endcase
     end
