@@ -12,6 +12,7 @@ add wave -noupdate -expand -group inputs -color Pink /tb_controller/DUT/controll
 add wave -noupdate -expand -group inputs -color Pink /tb_controller/DUT/input_rdata
 add wave -noupdate -expand -group inputs -color Pink /tb_controller/DUT/weight_rdata
 add wave -noupdate -expand -group inputs -color Pink /tb_controller/DUT/output_rdata
+add wave -noupdate -expand -group outputs -color Cyan /tb_controller/inference_done
 add wave -noupdate -expand -group outputs -color Cyan /tb_controller/DUT/input_write
 add wave -noupdate -expand -group outputs -color Cyan /tb_controller/DUT/weight_write
 add wave -noupdate -expand -group outputs -color Cyan /tb_controller/DUT/buffer_occupancy
@@ -59,7 +60,7 @@ add wave -noupdate -group {next state logic} /tb_controller/DUT/next_state
 add wave -noupdate /tb_controller/DUT/counter
 add wave -noupdate /tb_controller/DUT/no_outputs
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {51669 ps} 0}
+WaveRestoreCursors {{Cursor 1} {511975 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -75,4 +76,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {105 ns}
+WaveRestoreZoom {0 ps} {1123500 ps}

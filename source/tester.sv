@@ -9,7 +9,7 @@ module tester #(
     output logic buffer_occupancy, load_input, load_weight, ready, weights_loaded, overrun,
     output logic [63:0] controller_read, array_in
 );
-    logic input_write, weight_write, output_read;
+    logic input_write, weight_write, output_read, inference_done;
     logic new_input;
     logic [3:0] output_row, weight_row, input_row;
     logic [63:0] input_wdata, weight_wdata, input_rdata, weight_rdata, output_rdata;

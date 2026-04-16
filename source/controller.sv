@@ -6,11 +6,12 @@ module controller #(
     input logic clk, n_rst, read, start_inference, write, load_weights, 
     input logic [9:0] addr_in,
     input logic [63:0] controller_write, input_rdata, weight_rdata, output_rdata,
-    output logic input_write, weight_write, buffer_occupancy, load_input, load_weight, ready, weights_loaded, input_read, weight_read, output_read, overrun, new_input,
+    output logic input_write, weight_write, buffer_occupancy, load_input, load_weight, ready, weights_loaded, input_read, weight_read, output_read, overrun, new_input, inference_done,
     output logic [3:0] output_row, weight_row, input_row,
     output logic [63:0] controller_read, input_wdata, array_in, weight_wdata
 );
-    logic input_write_next, weight_write_next, input_read_next, weight_read_next, output_read_next, buffer_occupancy_next, load_input_next, load_weight_next, read_next, weights_loaded_next, overrun_next, ready_next, new_input_next;
+    logic [4:0] count_inference, count_inference_next;
+    logic input_write_next, weight_write_next, input_read_next, weight_read_next, output_read_next, buffer_occupancy_next, load_input_next, load_weight_next, read_next, weights_loaded_next, overrun_next, ready_next, new_input_next, sent_inputs, sent_inputs_next;
     logic [3:0] output_row_next, weight_row_next, input_row_next;
     logic [63:0] controller_read_next, input_wdata_next, array_in_next, weight_wdata_next;
     logic [3:0] input_count, output_count, output_count_next, input_count_next;
@@ -92,6 +93,8 @@ always_ff @(posedge clk or negedge n_rst) begin
         no_outputs <= '0;
         input_count <= '0;
         new_input <= '0;
+        count_inference <= '0;
+        sent_inputs <= '0;
     end else begin
         state <= next_state;
         input_write <= input_write_next;
@@ -117,6 +120,8 @@ always_ff @(posedge clk or negedge n_rst) begin
         input_count <= input_count_next;
         output_row <= output_row_next;
         new_input <= new_input_next;
+        count_inference <= count_inference_next;
+        sent_inputs <= sent_inputs_next;
     end
 end
 
@@ -143,6 +148,17 @@ end
         input_count_next = input_count;
         output_row_next = output_row;
         new_input_next = new_input;
+        count_inference_next = count_inference;
+        sent_inputs_next = sent_inputs;
+        if (sent_inputs) begin
+        if (count_inference == 18) begin
+            count_inference_next = 0;
+            sent_inputs_next = 0;
+        end else begin
+            count_inference_next = count_inference + 1;
+        end
+        end
+        inference_done = (count_inference == 18) ? 1 : 0;
         case(next_state)
         IDLE: begin
             weight_write_next = '0;
@@ -310,6 +326,7 @@ end
         LOAD_INPUT9: begin
             array_in_next = input_rdata;
             input_row_next = 3'd0;
+            sent_inputs_next = 1;
         end
         LOAD_LESSTHAN8: begin
             load_input_next = 0;
@@ -319,12 +336,16 @@ end
         LOAD_EVEN: begin
             load_input_next = 1;
             array_in_next = input_rdata; 
+            sent_inputs_next = 1;
         end
         LOAD_ODD0: begin
             load_input_next = 1;
             array_in_next = input_rdata;
         end
-        LOAD_ODD1: array_in_next = input_rdata;
+        LOAD_ODD1: begin 
+            array_in_next = input_rdata;
+            sent_inputs_next = 1;
+        end
         WRITE: begin
             ready_next = 0;
             if (addr_in == 10'd0) begin

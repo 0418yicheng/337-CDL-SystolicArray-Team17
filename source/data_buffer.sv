@@ -4,7 +4,7 @@ module data_buffer #(
     // parameters
 ) (
     input logic clk, n_rst, input_write, input_read, weight_write, weight_read, output_read, done, new_input,
-    input logic [2:0] weight_row, input_row, output_row,
+    input logic [2:0] weight_row, input_row, output_row, input_count,
     input logic [63:0] input_wdata, weight_wdata, activations,
     output logic [63:0] input_rdata, weight_rdata, output_rdata
 );

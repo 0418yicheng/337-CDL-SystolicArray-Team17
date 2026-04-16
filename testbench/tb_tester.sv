@@ -10,7 +10,7 @@ module tb_tester ();
         $dumpvars;
     end
 
-    logic clk, n_rst, read, write, start_inference, load_weights, done;
+    logic clk, n_rst, read, write, start_inference, load_weights, done, inference_done;
     logic [9:0] addr_in;
     logic [63:0] controller_write, activations;
     logic buffer_occupancy, load_input, load_weight, ready, weights_loaded, overrun;
