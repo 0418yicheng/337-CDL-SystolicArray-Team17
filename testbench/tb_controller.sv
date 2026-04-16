@@ -10,8 +10,10 @@ module tb_controller ();
         $dumpvars;
     end
 
-    logic clk, n_rst;
-
+    logic clk, n_rst, read, start_inference, write, load_weights, input_write, weight_write, buffer_occupancy, load_input, load_weight, ready, weights_loaded, input_read, weight_read, output_read, overrun;
+    logic [9:0] addr_in;
+    logic [63:0] controller_write, input_rdata, weight_rdata, output_rdata, controller_read, input_wdata, weight_wdata, output_wdata, array_in;
+    logic [2:0] weight_row, input_row, output_row;
     // clockgen
     always begin
         clk = 0;
@@ -31,14 +33,55 @@ module tb_controller ();
         @(posedge clk);
     end
     endtask
+    task writerr;
+    input logic [9:0] addr;
+    input logic [63:0] data;
+    begin
+        @(negedge clk);
+        write = 1;
+        addr_in = addr;
+        controller_write = data;
+        @(negedge clk);
+        write = 0;
+        @(negedge clk);
+        @(negedge clk);
+        @(negedge clk);
+        @(negedge clk);
+        @(negedge clk);
+        @(negedge clk);
 
+    end
+    endtask
     controller #() DUT (.*);
 
     initial begin
+        read = 0;
+        start_inference = 0;
+        write = 0;
+        load_weights = 0;
+        addr_in = '0;
+        controller_write = '0;
+        input_rdata = '0;
+        weight_rdata = '0;
+        output_rdata = '0;
+
         n_rst = 1;
-
         reset_dut;
-
+        @(negedge clk);
+        
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        writerr(10'd0, 64'hABCDABCDABCDABCD);
+        load_weights = 1;
+        @(negedge clk);
+        load_weights = 0;
+        repeat(30) @(negedge clk);
         $finish;
     end
 endmodule
