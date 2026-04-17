@@ -323,8 +323,9 @@ end
             array_in_next = input_rdata;
             input_row_next = 3'd0;
             sent_inputs_next = 1;
-            load_input_next = '0;
+            load_input_next = '1;
             input_count_next = '0;
+            missing_row_next = input_row;
         end
         LOAD_LESSTHAN8: begin
             load_input_next = 0;
@@ -401,7 +402,7 @@ end
         default: ready_next = ready;
         endcase
 
-        if (sent_inputs && (missing_row == 8)) begin
+        if (sent_inputs && (missing_row == 7)) begin
         if (count_inference == 18) begin
             count_inference_next = 0;
             sent_inputs_next = 0;
@@ -412,7 +413,7 @@ end
             load_input_next = 0;
         end
         end
-        if (sent_inputs && (missing_row < 8)) begin
+        if (sent_inputs && (missing_row < 7)) begin
             missing_row_next = missing_row + 1;
             load_input_next = 1;
             array_in_next = 64'd0;
