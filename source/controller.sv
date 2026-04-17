@@ -12,7 +12,7 @@ module controller #(
 );
     logic [4:0] count_inference, count_inference_next;
     logic input_write_next, weight_write_next, input_read_next, weight_read_next, output_read_next, buffer_occupancy_next, load_input_next, load_weight_next, read_next, weights_loaded_next, overrun_next, ready_next, new_input_next, sent_inputs, sent_inputs_next;
-    logic [3:0] output_row_next, weight_row_next, input_row_next;
+    logic [3:0] output_row_next, weight_row_next, input_row_next, missing_row, missing_row_next;
     logic [63:0] controller_read_next, input_wdata_next, array_in_next, weight_wdata_next;
     logic [3:0] input_count, output_count, output_count_next, input_count_next;
     logic [2:0] counter, counter_next;
@@ -95,6 +95,7 @@ always_ff @(posedge clk or negedge n_rst) begin
         new_input <= '0;
         count_inference <= '0;
         sent_inputs <= '0;
+        missing_row <= '0;
     end else begin
         state <= next_state;
         input_write <= input_write_next;
@@ -122,6 +123,7 @@ always_ff @(posedge clk or negedge n_rst) begin
         new_input <= new_input_next;
         count_inference <= count_inference_next;
         sent_inputs <= sent_inputs_next;
+        missing_row <= missing_row_next;
     end
 end
 
@@ -150,14 +152,8 @@ end
         new_input_next = new_input;
         count_inference_next = count_inference;
         sent_inputs_next = sent_inputs;
-        if (sent_inputs) begin
-        if (count_inference == 18) begin
-            count_inference_next = 0;
-            sent_inputs_next = 0;
-        end else begin
-            count_inference_next = count_inference + 1;
-        end
-        end
+        missing_row_next = missing_row;
+        
         inference_done = (count_inference == 18) ? 1 : 0;
         case(next_state)
         IDLE: begin
@@ -327,16 +323,20 @@ end
             array_in_next = input_rdata;
             input_row_next = 3'd0;
             sent_inputs_next = 1;
+            load_input_next = '0;
+            input_count_next = '0;
         end
         LOAD_LESSTHAN8: begin
             load_input_next = 0;
             input_read_next = 0;
-            input_row_next = 3'd0;
         end
         LOAD_EVEN: begin
             load_input_next = 1;
             array_in_next = input_rdata; 
             sent_inputs_next = 1;
+            input_row_next = 3'd0;
+            missing_row_next = input_row;
+            input_count_next = '0;
         end
         LOAD_ODD0: begin
             load_input_next = 1;
@@ -345,6 +345,9 @@ end
         LOAD_ODD1: begin 
             array_in_next = input_rdata;
             sent_inputs_next = 1;
+            missing_row_next = input_row;
+            input_row_next = 3'd0;
+            input_count_next = '0;
         end
         WRITE: begin
             ready_next = 0;
@@ -389,14 +392,31 @@ end
         end
         READ1: begin
             output_read_next = 0;
-            output_row_next = output_row + 1;
         end
         READ2: begin
             controller_read_next = output_rdata;
             ready_next = 1;
+            output_row_next = output_row + 1;
         end
         default: ready_next = ready;
         endcase
+
+        if (sent_inputs && (missing_row == 8)) begin
+        if (count_inference == 18) begin
+            count_inference_next = 0;
+            sent_inputs_next = 0;
+            missing_row_next = '0;
+            load_input_next = 0;
+        end else begin
+            count_inference_next = count_inference + 1;
+            load_input_next = 0;
+        end
+        end
+        if (sent_inputs && (missing_row < 8)) begin
+            missing_row_next = missing_row + 1;
+            load_input_next = 1;
+            array_in_next = 64'd0;
+        end
     end
 
     always_comb begin
@@ -479,16 +499,18 @@ end
             end
         end
         LOAD_INPUT2: begin
-            if (input_row >= input_count - 1) begin
-                next_state = LOAD_LESSTHAN8;
-            end else next_state = LOAD_INPUT3;
+            next_state = LOAD_INPUT3;
         end
         LOAD_INPUT3: begin
             if (input_row >= input_count - 1) begin
                 next_state = LOAD_LESSTHAN8;
             end else next_state = LOAD_INPUTM0;
         end
-        LOAD_INPUTM0: next_state = WAIT_INPUT1;
+        LOAD_INPUTM0: begin
+            if (input_row >= input_count - 1) begin
+            next_state = LOAD_LESSTHAN8;
+            end else next_state = WAIT_INPUT1;
+        end
         WAIT_INPUT1: begin
             if (counter == 3) begin
                 counter_next = '0;
@@ -499,16 +521,18 @@ end
             end
         end
         LOAD_INPUT4: begin
-            if (input_row >= input_count - 1) begin
-                next_state = LOAD_LESSTHAN8;
-            end else next_state = LOAD_INPUT5;
+            next_state = LOAD_INPUT5;
         end
         LOAD_INPUT5: begin
             if (input_row >= input_count - 1) begin
                 next_state = LOAD_LESSTHAN8;
             end else next_state = LOAD_INPUTM1;
         end
-        LOAD_INPUTM1: next_state = WAIT_INPUT2;
+        LOAD_INPUTM1: begin
+            if (input_row >= input_count - 1) begin
+            next_state = LOAD_LESSTHAN8;
+            end else next_state = WAIT_INPUT2;
+        end
         WAIT_INPUT2: begin
             if (counter == 3) begin
                 counter_next = '0;
@@ -519,11 +543,13 @@ end
             end
         end
         LOAD_INPUT6: begin
-            if (input_row >= input_count - 1) begin
-                next_state = LOAD_LESSTHAN8;
-            end else next_state = LOAD_INPUT7;
+            next_state = LOAD_INPUT7;
         end
-        LOAD_INPUT7: next_state = LOAD_INPUTM2;
+        LOAD_INPUT7: begin 
+            if (input_row >= input_count - 1) begin
+            next_state = LOAD_LESSTHAN8;
+            end else next_state = LOAD_INPUTM2;
+        end
         LOAD_INPUTM2: next_state = WAIT_INPUT3;
         WAIT_INPUT3: begin
             if (counter == 3) begin
@@ -575,12 +601,12 @@ end
         end
         READ0: next_state = READ1;
         READ1: begin
-            if (counter == 5) begin
+            if (counter == 4) begin
                 counter_next = '0;
-                next_state = READ1;
+                next_state = READ2;
             end else begin
                 counter_next = counter + 1;
-                next_state = READ2;
+                next_state = READ1;
             end
         end 
         READ2: next_state = IDLE;
