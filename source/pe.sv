@@ -55,6 +55,20 @@ module pe #(
         n_out = out_reg;
         n_weight = weight;
 
+        //Set a bunch of default values to prevent latches
+        s_prod = 0;
+        e_temp = 5'd0;
+        e_prod = 0;
+        m_prod = 0;
+        e_large = 0;
+        e_small = 0;
+        e_diff = 0;
+        m_large = 0;
+        m_small = 0;
+        m_sum = 0;
+        s_final = 0;
+        e_final = 0;
+
         if (load_weight) begin
             n_weight = in_weight;
         end

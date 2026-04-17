@@ -7,6 +7,8 @@ filesets:
         files:
             - "source/systolic_array.sv"
         file_type: systemVerilogSource
+        depend:
+            - "u337mg030:ece337:pe:1.0.0"
         # depend:
         #     - "fusesoc:core:name"
 
