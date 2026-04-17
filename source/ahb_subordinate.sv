@@ -97,7 +97,7 @@ module ahb_subordinate (
         caddr = 10'b0;
         cwdata = 64'b0;
         hresp = 1'b0;
-        hready = 1'b1;
+        hready = 1'b1; 
         hrdata = 64'b0; 
 
         if (inference_done) n_start_inference = 1'b0;
@@ -107,67 +107,86 @@ module ahb_subordinate (
             hresp = 1'b1;
             hready = 1'b0;
             n_err_state = 2'd2;
+            n_write = 1'b0;
+            n_read_en = 1'b0;
         end else if (err_state == 2'd2) begin
             hresp = 1'b1;
             hready = 1'b1;
             n_err_state = 2'd0;
+            n_write = 1'b0;
+            n_read_en = 1'b0;
         end else begin
         
-            if (hsel && (htrans == 2'b10)) begin       
+            // --- Write Stall Check ---
+            // If we are executing a write and the device is not ready, stall the bus!
+            if (write && !ready) begin
+                hready = 1'b0;
+            end
 
-                is_busy_access = !ready && ( (haddr >= 10'h000 && haddr <= 10'h007) || 
-                                           (haddr >= 10'h008 && haddr <= 10'h00F) || 
-                                           (haddr >= 10'h010 && haddr <= 10'h017) || 
-                                           (haddr >= 10'h018 && haddr <= 10'h01F) );
+            // --- Pipeline Control ---
+            if (hready == 1'b0) begin
+                // Freeze the pipeline state during a stall so we don't lose the transaction
+                n_write = write;
+                n_read_en = read_en;
+            end else begin
+                // Normal Address Phase (only latch new signals when not stalled)
+                if (hsel && (htrans == 2'b10)) begin       
 
-                if (haddr > 10'h024 ||
-                   (hwrite && ( (haddr >= 10'h018 && haddr <= 10'h01F) ||
-                                (haddr == 10'h020 || haddr == 10'h021) ||
-                                (haddr == 10'h023) )) ||
-                   (!hwrite && ( (haddr >= 10'h000 && haddr <= 10'h007) ||
-                                 (haddr >= 10'h008 && haddr <= 10'h00F) )) ||
-                   is_busy_access) begin
+                    is_busy_access = !ready && ( (haddr >= 10'h000 && haddr <= 10'h007) || 
+                                               (haddr >= 10'h008 && haddr <= 10'h00F) || 
+                                               (haddr >= 10'h018 && haddr <= 10'h01F) );
 
-                    n_err_state = 2'd1;
-                    if (is_busy_access) n_ft_reg = 1'b1;
+                    if (haddr > 10'h024 ||
+                       (hwrite && ( (haddr >= 10'h018 && haddr <= 10'h01F) ||
+                                    (haddr == 10'h020 || haddr == 10'h021) ||
+                                    (haddr == 10'h023) )) ||
+                       (!hwrite && ( (haddr >= 10'h000 && haddr <= 10'h007) ||
+                                     (haddr >= 10'h008 && haddr <= 10'h00F) )) ||
+                       is_busy_access) begin
 
-                end else begin
-                    n_write = hwrite;
-                    n_read_en = !hwrite; 
-                    n_addr = haddr;
-                    n_size = hsize;
+                        n_err_state = 2'd1;
+                        if (is_busy_access) n_ft_reg = 1'b1;
+
+                    end else begin
+                        n_write = hwrite;
+                        n_read_en = !hwrite; 
+                        n_addr = haddr;
+                        n_size = hsize;
+                    end
                 end
             end
 
+            // --- Data Phase: Write ---
             if (write) begin
                 if (addr >= 10'h000 && addr <= 10'h007) begin
                     cwdata = hwdata & byte_mask;
                     caddr = 10'h000;
-                    cwrite = 1'b1;
+                    if (ready) cwrite = 1'b1;
                 end else if (addr >= 10'h008 && addr <= 10'h00F) begin
                     cwdata = hwdata & byte_mask;
                     caddr = 10'h008;
-                    cread = 1'b1; 
+                    if (ready) cwrite = 1'b1; 
                 end else if (addr >= 10'h010 && addr <= 10'h017) begin
-                    n_bias = (hwdata & byte_mask) | (bias & ~byte_mask);
+                    if (ready) n_bias = (hwdata & byte_mask) | (bias & ~byte_mask);
                 end else if (addr == 10'h022) begin
-                    if (byte_mask[16]) begin
+                    if (byte_mask[16] && ready) begin
                         n_start_inference = hwdata[16];
                         n_load_weights = hwdata[17]; 
                     end
                 end else if (addr == 10'h024) begin
-                    if (byte_mask[32]) begin
+                    if (byte_mask[32] && ready) begin
                         n_activation_mode = hwdata[33:32];
                     end
                 end
             end
 
+            // --- Data Phase: Read ---
             if (read_en) begin
                 if (addr >= 10'h010 && addr <= 10'h017) begin
                     hrdata = bias;
                 end else if (addr >= 10'h018 && addr <= 10'h01F) begin
-                    hready = 1'b1;
                     hrdata = crdata;
+                    cread = 1'b1;
                 end else if (addr == 10'h020 || addr == 10'h021) begin
                     hrdata = {48'b0, 6'b0, inf_reg, nan_reg, 4'b0, ft_reg, 1'b0, oe_reg, boe_reg};
                 end else if (addr == 10'h022) begin

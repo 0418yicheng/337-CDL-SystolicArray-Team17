@@ -3,7 +3,7 @@
 module ahb_accelerator #(
     // parameters
 ) (
-    input logic clk, n_rst
+    input logic clk, n_rst,
 
     input logic hsel,
     input logic [9:0] haddr,
@@ -23,13 +23,13 @@ module ahb_accelerator #(
     logic cwrite;
     logic cread;
     logic [63:0] input_rdata, weight_rdata, output_rdata;
-        logic [2:0] input_row, weight_row, output_row;
-        logic new_input;
-        logic [63:0] array_in, array_out, biased_out, activations;
-        logic input_read;
-        logic busy;
-        logic done, bias_done;
-        logic [3:0] input_count;
+    logic [2:0] input_row, weight_row, output_row;
+    logic new_input;
+    logic [63:0] array_in, array_out, biased_out, activations;
+    logic input_read;
+    logic busy;
+    logic done, bias_done;
+    logic [3:0] input_count;
         
 
     // Error signals
@@ -160,7 +160,8 @@ module ahb_accelerator #(
         .activations(activations),
         .input_rdata(input_rdata),
         .weight_rdata(weight_rdata),
-        .output_rdata(output_rdata)
+        .output_rdata(output_rdata),
+        .input_read(input_read)
     );
 
     activation act (

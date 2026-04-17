@@ -136,8 +136,7 @@ module systolic_array #(
                 n_weights[6] = inputs;
             end
             WLOAD8: begin
-                if(load_weights)
-                    n_state = IDLE;
+                n_state = IDLE;
 
                 n_weights[7] = inputs;
             end

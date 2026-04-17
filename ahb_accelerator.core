@@ -7,8 +7,14 @@ filesets:
         files:
             - "source/ahb_accelerator.sv"
         file_type: systemVerilogSource
-        # depend:
-        #     - "fusesoc:core:name"
+        depend:
+            - "u337mg030:ece337:activation:1.0.0"
+            - "u337mg030:ece337:ahb_subordinate:1.0.0"
+            - "u337mg030:ece337:bias_adder:1.0.0"
+            - "u337mg187:ece337:controller:1.0.0"
+            - "u337mg187:ece337:data_buffer:1.0.0"
+            - "u337mg030:ece337:systolic_array:1.0.0"
+            - "u337mg187:ece337:sram_bank:1.0.0"
 
     synth:
         depend:
@@ -24,6 +30,8 @@ filesets:
         file_type: systemVerilogSource
         depend:
             - "u337mg157:ece337:questafiles"
+            - "ece337:course-lib:sram1024x32_wrapper"
+            - "ece337:course-lib:ahb_model_updated"
 
     synfiles:
         files:

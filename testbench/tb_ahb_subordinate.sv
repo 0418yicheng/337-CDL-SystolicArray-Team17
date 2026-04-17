@@ -231,7 +231,7 @@ module tb_ahb_subordinate ();
         ready = 1'b0;
         inference_done = 1'b1;
         
-        // Pulse Error inputs high for  ONE cycle
+        // Pulse Error inputs high for ONE cycle
         boe = 1'b1;
         inf_flag = 1'b1;
         @(negedge clk);
