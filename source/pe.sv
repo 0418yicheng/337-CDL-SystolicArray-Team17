@@ -55,6 +55,20 @@ module pe #(
         n_out = out_reg;
         n_weight = weight;
 
+        //Set a bunch of default values to prevent latches
+        s_prod = 0;
+        e_temp = 5'd0;
+        e_prod = 0;
+        m_prod = 0;
+        e_large = 0;
+        e_small = 0;
+        e_diff = 0;
+        m_large = 0;
+        m_small = 0;
+        m_sum = 0;
+        s_final = 0;
+        e_final = 0;
+
         if (load_weight) begin
             n_weight = in_weight;
         end
@@ -75,7 +89,10 @@ module pe #(
                 e_prod = e_temp[3:0] - 4'd7;
 
             // Mantissa multiply: (1.m * 1.m) -> Result is 8 bits [7:0]
-            m_prod = {1'b1, weight[2:0]} * {1'b1, in[2:0]}; 
+            if(weight[6:0] == 0 || in[6:0] == 0)
+                m_prod = 0;
+            else
+                m_prod = {1'b1, weight[2:0]} * {1'b1, in[2:0]}; 
             
             // Normalize Product: Ensure bit [6] is the "1" in 1.xxxxxx
             // If bit [7] is high, the result is 1x.xxxxxx, so we shift right.
