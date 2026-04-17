@@ -21,7 +21,9 @@ module ahb_subordinate (
     output logic [63:0] cwdata,         
     output logic [9:0] caddr,           
     output logic cwrite,                
-    output logic cread,                 
+    output logic cread,
+    output logic start_inference,
+    output logic load_weights,                 
     
     // Errors
     input logic boe,
@@ -31,6 +33,9 @@ module ahb_subordinate (
 
     //Bias Adder
     output logic [63:0] bias,
+
+    //Systolic Array
+    input logic busy,
 
     //Actvation Module
     output logic [1:0] activation_mode
@@ -43,8 +48,8 @@ module ahb_subordinate (
     logic [1:0] n_err_state, err_state;
 
     logic [63:0] n_bias;
-    logic n_start_inference, start_inference;
-    logic n_load_weights, load_weights;
+    logic n_start_inference;
+    logic n_load_weights;
     logic [1:0] n_activation_mode;
     
     logic n_boe_reg, boe_reg;
@@ -168,7 +173,7 @@ module ahb_subordinate (
                 end else if (addr == 10'h022) begin
                     hrdata = {40'b0, 6'b0, load_weights, start_inference, 16'b0};
                 end else if (addr == 10'h023) begin
-                    hrdata = {32'b0, 6'b0, ~ready, inference_done, 24'b0}; 
+                    hrdata = {32'b0, 6'b0, busy, inference_done, 24'b0}; 
                 end else if (addr == 10'h024) begin
                     hrdata = {24'b0, 6'b0, activation_mode, 32'b0};
                 end

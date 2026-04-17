@@ -1,11 +1,11 @@
 CAPI=2:
-name: "u337mg030:ece337:ahb_subordinate:1.0.0"
+name: "u337mg157:ece337:ahb_accelerator:1.0.0"
 description: ""
 
 filesets:
     rtl:
         files:
-            - "source/ahb_subordinate.sv"
+            - "source/ahb_accelerator.sv"
         file_type: systemVerilogSource
         # depend:
         #     - "fusesoc:core:name"
@@ -13,22 +13,21 @@ filesets:
     synth:
         depend:
             - "ece337:tech:AMI_05_LIB"
-            - "u337mg157:ece337:ahb_subordinate_syn"
+            - "u337mg157:ece337:ahb_accelerator_syn"
 
     tb:
         files:
-            - "testbench/tb_ahb_subordinate.sv"
-            - "waves/ahb_subordinate.do": { file_type: user }
-            - "waves/ahb_subordinate.gtkw": { file_type: user }
+            - "testbench/tb_ahb_accelerator.sv"
+            - "waves/ahb_accelerator.do": { file_type: user }
+            - "waves/ahb_accelerator.gtkw": { file_type: user }
             # - "data/file.txt": { file_type: user }
         file_type: systemVerilogSource
         depend:
             - "u337mg157:ece337:questafiles"
-            - "ece337:course-lib:ahb_model"
 
     synfiles:
         files:
-            - "scripts/syn_ahb_subordinate.tcl"
+            - "scripts/syn_ahb_accelerator.tcl"
         file_type: tclSource
         depend:
             - "u337mg157:ece337:synfiles"
@@ -37,21 +36,21 @@ targets:
     default: &default
         filesets:
             - rtl
-        toplevel: ahb_subordinate
+        toplevel: ahb_accelerator
 
     sim: &sim
         <<: *default
         default_tool: verilator
         filesets_append:
             - tb
-        toplevel: tb_ahb_subordinate
+        toplevel: tb_ahb_accelerator
         tools:
             modelsim:
                 vsim_options:
                     - -vopt
                     - -voptargs='+acc'
                     - -t ps
-                    - -do "source waves.tcl ; load_wave waves/ahb_subordinate.do"
+                    - -do "source waves.tcl ; load_wave waves/ahb_accelerator.do"
                     - -onfinish stop
                     - -do "set PrefSource(OpenOnFinish) 0 ; set PrefMain(LinePrefix) \"\" ; set PrefMain(colorizeTranscript) 1"
                     - -coverage
@@ -84,7 +83,7 @@ targets:
         filesets_append:
             - synfiles
         default_tool: design_compiler
-        toplevel: ahb_subordinate
+        toplevel: ahb_accelerator
         tools:
             design_compiler:
                 script_dir: "src/u337mg157_ece337_synfiles_0"
