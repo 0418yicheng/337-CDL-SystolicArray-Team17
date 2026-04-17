@@ -28,7 +28,7 @@ module systolic_array #(
 
     typedef enum logic[4:0] {IDLE, IDLE_ERR,
                                 WLOAD1, WLOAD2, WLOAD3, WLOAD4, WLOAD5, WLOAD6, WLOAD7, WLOAD8,
-                                WWAIT1, WWAIT2, WWAIT3, WWAIT4, WWAIT5, WWAIT6, WWAIT7, WWAIT8,
+                                WWAIT1, WWAIT2, WWAIT3, WWAIT4, WWAIT5, WWAIT6, WWAIT7,
                                 ILOAD, WAIT, CALC, OLOAD} state_t;
 
     state_t state;
@@ -43,8 +43,9 @@ module systolic_array #(
     assign inf = |infs;
 
     generate    //Generate all pes
+        //Initialize input and output vectors
         for(genvar i = 0; i < 8; i++) begin: IO_INIT
-            assign input_vector[i] = input_mat[i][i];
+            assign input_vector[i] = input_mat[i][i];   //That's not right
             assign outputs[i*8 +: 8] = output_mat[3'd7-i][i];
         end
         //Generate general internal PEs
@@ -73,7 +74,7 @@ module systolic_array #(
             pe p7 (.clk(clk), .n_rst(n_rst), 
                         .load_weight(load_weight_vector[7]), .load_input(load_inputs || man_load), 
                         .in_weight(weights[7][c]), .in(int_inputs[7][c-1]), .input_sum(int_sums[6][c]), 
-                        .input_out(int_inputs[7][c]), .sum(output_vector[c]), 
+                        .input_out(int_inputs[7][c]), .sum(int_sums[7][c]), 
                         .inf(infs[7][c]), .nan(nans[7][c])
                         );
         end
@@ -100,7 +101,7 @@ module systolic_array #(
         pe p_bl (.clk(clk), .n_rst(n_rst), 
                         .load_weight(load_weight_vector[7]), .load_input(load_inputs || man_load), 
                         .in_weight(weights[7][0]), .in(input_vector[7]), .input_sum(int_sums[6][0]), 
-                        .input_out(int_inputs[7][0]), .sum(output_vector[0]), 
+                        .input_out(int_inputs[7][0]), .sum(int_sums[7][0]), 
                         .inf(infs[7][0]), .nan(nans[7][0])
                         );
     endgenerate
@@ -210,14 +211,10 @@ module systolic_array #(
                     n_state = WLOAD8;
             end
             WLOAD8: begin
-                n_state = WWAIT8;
+                n_state = IDLE;
 
                 load_weight_vector[7] = 1;
                 weights[7] = inputs;
-            end
-            WWAIT8: begin
-                if(load_weights)
-                    n_state = IDLE;
             end
 
             ILOAD: begin
@@ -254,7 +251,7 @@ module systolic_array #(
 
                 //Shift output matrix down
                 for(int c = 0; c < 8; c++) begin
-                    n_output_mat[0][c] = output_vector[c];
+                    n_output_mat[0][c] = int_sums[7][c];
                     for(int r = 1; r < 8; r++) begin
                         n_output_mat[r][c] = output_mat[r-1][c];
                     end
@@ -267,9 +264,10 @@ module systolic_array #(
                 end
             end
             OLOAD: begin
+                man_load = 1;
                 done = 1;
                 for(int c = 0; c < 8; c++) begin
-                    n_output_mat[0][c] = 8'd0;
+                    n_output_mat[0][c] = int_sums[7][c];
                     for(int r = 1; r < 8; r++) begin
                         n_output_mat[r][c] = output_mat[r-1][c];
                     end

@@ -89,7 +89,10 @@ module pe #(
                 e_prod = e_temp[3:0] - 4'd7;
 
             // Mantissa multiply: (1.m * 1.m) -> Result is 8 bits [7:0]
-            m_prod = {1'b1, weight[2:0]} * {1'b1, in[2:0]}; 
+            if(weight[6:0] == 0 || in[6:0] == 0)
+                m_prod = 0;
+            else
+                m_prod = {1'b1, weight[2:0]} * {1'b1, in[2:0]}; 
             
             // Normalize Product: Ensure bit [6] is the "1" in 1.xxxxxx
             // If bit [7] is high, the result is 1x.xxxxxx, so we shift right.

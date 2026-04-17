@@ -77,6 +77,14 @@ module tb_pe ();
 
         reset_dut;
 
+        //Sys Debugging Tests
+        load_weights(8'b0);
+        load_inputs(8'h3c, 8'd0);   //Wrong Output
+        load_inputs(8'h30, 8'd0);
+        load_inputs(8'h28, 8'd0);
+        load_inputs(8'h3a, 8'd0);   //Wrong Output
+
+
         // Test multiplication
         load_weights(8'b0_0110_000); //Float representation of 0.5
         load_inputs(8'b0_0111_100, 8'd0);   //Float representation of 1.5
