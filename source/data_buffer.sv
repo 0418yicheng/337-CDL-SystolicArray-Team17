@@ -6,7 +6,8 @@ module data_buffer #(
     input logic clk, n_rst, input_write, input_read, weight_write, weight_read, output_read, done, new_input,
     input logic [2:0] weight_row, input_row, output_row, input_count,
     input logic [63:0] input_wdata, weight_wdata, activations,
-    output logic [63:0] input_rdata, weight_rdata, output_rdata
+    output logic [63:0] input_rdata, weight_rdata, output_rdata,
+    output logic inference_done
 );
     logic start_weight0, start_weight1, start_input0, start_input1, start_output0, start_output1, start_output0_next, start_output1_next, start_weight0_next, start_weight1_next, start_input0_next, start_input1_next, start_output2, start_output3, start_output4, start_output5, start_output6, start_output7, start_output2_next, start_output3_next, start_output4_next, start_output5_next, start_output6_next, start_output7_next;
     logic read_write_weight0, read_write_weight1, read_write_input0, read_write_input1, read_write_output0, read_write_output1, read_write_output0_next, read_write_output1_next, read_write_input0_next, read_write_input1_next, read_write_weight0_next, read_write_weight1_next, read_write_output2, read_write_output3, read_write_output4, read_write_output5, read_write_output6, read_write_output7, read_write_output2_next, read_write_output3_next, read_write_output4_next, read_write_output5_next, read_write_output6_next, read_write_output7_next;
@@ -160,6 +161,7 @@ module data_buffer #(
         weight1_in_next = weight1_in;
         input0_in_next = input0_in;
         input1_in_next = input1_in;
+        inference_done = 0;
 
         if (new_input) begin
             output_row_write_next = '0;
@@ -310,6 +312,7 @@ module data_buffer #(
             read_write_output0_next = 0;
             if (read_write_output0 == 1) begin
             activations_latch0_next = '0;
+            inference_done = 1;
             end
         end
         if (output1_done) begin
