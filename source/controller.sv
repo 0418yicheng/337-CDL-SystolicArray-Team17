@@ -258,6 +258,7 @@ end
             input_row_next = 3'd0;
             new_input_next = 1;
             output_count_next = input_count;
+            inference_started_next = 1;
             if (no_outputs == 0) begin
                 overrun_next = 1;
             end
