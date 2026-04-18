@@ -3,10 +3,10 @@
 module controller #(
     // parameters
 ) (
-    input logic clk, n_rst, read, start_inference, write, load_weights, 
+    input logic clk, n_rst, read, start_inference, write, load_weights, inference_done,
     input logic [9:0] addr_in,
     input logic [63:0] controller_write, input_rdata, weight_rdata, output_rdata,
-    output logic input_write, weight_write, buffer_occupancy, load_input, load_weight, ready, weights_loaded, input_read, weight_read, output_read, overrun, new_input, inference_done,
+    output logic input_write, weight_write, buffer_occupancy, load_input, load_weight, ready, weights_loaded, input_read, weight_read, output_read, overrun, new_input,
     output logic [3:0] output_row, weight_row, input_row,
     output logic [63:0] controller_read, input_wdata, array_in, weight_wdata
 );
@@ -16,7 +16,7 @@ module controller #(
     logic [63:0] controller_read_next, input_wdata_next, array_in_next, weight_wdata_next;
     logic [3:0] input_count, output_count, output_count_next, input_count_next;
     logic [2:0] counter, counter_next;
-    logic no_outputs, no_outputs_next;
+    logic no_outputs, no_outputs_next, inference_started, inference_started_next;
 typedef enum logic [5:0] {
     IDLE = 6'b000000,
     LOAD_WEIGHT0 = 6'b000001,
@@ -96,6 +96,7 @@ always_ff @(posedge clk or negedge n_rst) begin
         count_inference <= '0;
         sent_inputs <= '0;
         missing_row <= '0;
+        inference_started <= 0;
     end else begin
         state <= next_state;
         input_write <= input_write_next;
@@ -124,6 +125,7 @@ always_ff @(posedge clk or negedge n_rst) begin
         count_inference <= count_inference_next;
         sent_inputs <= sent_inputs_next;
         missing_row <= missing_row_next;
+        inference_started <= inference_started_next;
     end
 end
 
@@ -153,8 +155,11 @@ end
         count_inference_next = count_inference;
         sent_inputs_next = sent_inputs;
         missing_row_next = missing_row;
-        
-        inference_done = (count_inference == 18) ? 1 : 0;
+        inference_started_next = inference_started;
+
+        if (inference_done) begin
+            inference_started_next = 0;
+        end
         case(next_state)
         IDLE: begin
             weight_write_next = '0;
@@ -253,6 +258,7 @@ end
             input_row_next = 3'd0;
             new_input_next = 1;
             output_count_next = input_count;
+            inference_started_next = 1;
             if (no_outputs == 0) begin
                 overrun_next = 1;
             end
@@ -323,8 +329,9 @@ end
             array_in_next = input_rdata;
             input_row_next = 3'd0;
             sent_inputs_next = 1;
-            load_input_next = '0;
+            load_input_next = '1;
             input_count_next = '0;
+            missing_row_next = input_row;
         end
         LOAD_LESSTHAN8: begin
             load_input_next = 0;
@@ -389,6 +396,7 @@ end
         READ0: begin
             output_read_next = 1;
             output_count_next = output_count - 1;
+            ready_next = 0;
         end
         READ1: begin
             output_read_next = 0;
@@ -397,11 +405,12 @@ end
             controller_read_next = output_rdata;
             ready_next = 1;
             output_row_next = output_row + 1;
+            ready_next = 1;
         end
         default: ready_next = ready;
         endcase
 
-        if (sent_inputs && (missing_row == 8)) begin
+        if (sent_inputs && (missing_row == 7)) begin
         if (count_inference == 18) begin
             count_inference_next = 0;
             sent_inputs_next = 0;
@@ -412,7 +421,7 @@ end
             load_input_next = 0;
         end
         end
-        if (sent_inputs && (missing_row < 8)) begin
+        if (sent_inputs && (missing_row < 7)) begin
             missing_row_next = missing_row + 1;
             load_input_next = 1;
             array_in_next = 64'd0;
@@ -426,7 +435,7 @@ end
         IDLE: begin
             if (write) next_state = WRITE;
             else if (load_weights) next_state = LOAD_WEIGHT0;
-            else if (start_inference) next_state = LOAD_INPUT0;
+            else if (start_inference && !inference_started) next_state = LOAD_INPUT0;
             else if (read) next_state = READ0;
             else next_state = IDLE;
         end

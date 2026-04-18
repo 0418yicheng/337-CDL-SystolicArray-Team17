@@ -236,7 +236,7 @@ module tb_data_buffer ();
         // @(negedge clk);
         // @(negedge clk);
         // @(negedge clk);
-        Testing getting outputs from systolic array
+        //Testing getting outputs from systolic array
         @(negedge clk);
         done = 1;
         @(negedge clk);
