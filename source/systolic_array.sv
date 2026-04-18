@@ -19,7 +19,6 @@ module systolic_array #(
     logic [7:0][7:0] infs;
 
     logic [7:0] input_vector [7:0];   //Single vector of inputs fed into sys_array
-    logic [7:0] output_vector [7:0];   //Single vector of outputs out of the sys_array
 
     logic [7:0][7:0] input_mat [7:0], n_input_mat [7:0];
     logic [7:0][7:0] output_mat [7:0], n_output_mat [7:0];
@@ -135,7 +134,7 @@ module systolic_array #(
             end
 
             WLOAD1: begin
-                n_state = WWAIT1;
+                n_state = WLOAD2;
 
                 load_weight_vector[0] = 1;
                 weights[0] = inputs;
@@ -158,7 +157,7 @@ module systolic_array #(
             end
 
             WLOAD3: begin
-                n_state = WWAIT3;
+                n_state = WLOAD4;
 
                 load_weight_vector[2] = 1;
                 weights[2] = inputs;
@@ -181,7 +180,7 @@ module systolic_array #(
             end
 
             WLOAD5: begin
-                n_state = WWAIT5;
+                n_state = WLOAD6;
 
                 load_weight_vector[4] = 1;
                 weights[4] = inputs;
@@ -201,7 +200,7 @@ module systolic_array #(
                     n_state = WLOAD7;
             end
             WLOAD7: begin
-                n_state = WWAIT7;
+                n_state = WLOAD8;
 
                 load_weight_vector[6] = 1;
                 weights[6] = inputs;
