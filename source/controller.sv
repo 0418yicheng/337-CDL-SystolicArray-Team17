@@ -396,6 +396,7 @@ end
         READ0: begin
             output_read_next = 1;
             output_count_next = output_count - 1;
+            ready_next = 0;
         end
         READ1: begin
             output_read_next = 0;
@@ -404,6 +405,7 @@ end
             controller_read_next = output_rdata;
             ready_next = 1;
             output_row_next = output_row + 1;
+            ready_next = 1;
         end
         default: ready_next = ready;
         endcase
