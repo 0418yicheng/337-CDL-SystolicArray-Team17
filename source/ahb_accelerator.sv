@@ -79,7 +79,7 @@ module ahb_accelerator #(
         .bias(bias),
 
         //Systolic Array
-        .busy(busy),
+        .busy(1'b0), // TODO: Need to reconnect after Yi readds busy signal
 
         //Actvation Module
         .activation_mode(activation_mode)
@@ -128,7 +128,7 @@ module ahb_accelerator #(
         .nan(nan_flag),
         .inf(inf_flag),
         .outputs(array_out),
-        .busy(busy),
+        // .busy(busy),
         .done(done)
     );
 

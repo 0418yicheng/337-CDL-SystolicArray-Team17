@@ -27,7 +27,6 @@ add wave -noupdate /tb_ahb_accelerator/DUT/cont/array_in
 add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/start_inference
 add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/load_weights
 add wave -noupdate /tb_ahb_accelerator/DUT/cont/state
-add wave -noupdate /tb_ahb_accelerator/DUT/sa/weights_mat
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/state
 add wave -noupdate /tb_ahb_accelerator/DUT/cont/load_weight
 add wave -noupdate /tb_ahb_accelerator/DUT/cont/load_input
@@ -38,16 +37,12 @@ add wave -noupdate {/tb_ahb_accelerator/DUT/db/input0/sram0/memory[0]}
 add wave -noupdate /tb_ahb_accelerator/DUT/cont/input_write
 add wave -noupdate /tb_ahb_accelerator/DUT/cont/input_wdata
 add wave -noupdate /tb_ahb_accelerator/DUT/db/input0/wdata_in
-add wave -noupdate -expand /tb_ahb_accelerator/DUT/sa/in
-add wave -noupdate /tb_ahb_accelerator/DUT/sa/a_mat
-add wave -noupdate /tb_ahb_accelerator/DUT/sa/outputs
-add wave -noupdate -expand /tb_ahb_accelerator/DUT/sa/out
 add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[3]}
 add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[2]}
 add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[1]}
 add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[0]}
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {2089653 ps} 0}
+WaveRestoreCursors {{Cursor 1} {2048876 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 152
@@ -63,4 +58,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1995809 ps} {2183497 ps}
+WaveRestoreZoom {0 ps} {3003 ns}
