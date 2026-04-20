@@ -8,7 +8,8 @@ module systolic_array #(
     input logic [63:0] inputs,
     output logic nan, inf,
     output logic [63:0] outputs,
-    output logic done
+    output logic done,
+    output logic busy
 );
     logic [7:0] load_weight_vector;
     logic [7:0][7:0] weights [7:0];
@@ -113,6 +114,8 @@ module systolic_array #(
         n_out_count = out_count;
         man_load = 0;
         done = 0;
+        busy = 0;
+
 
         load_weight_vector = 8'd0;
         for(int r = 0; r < 8; r++) begin
@@ -134,17 +137,20 @@ module systolic_array #(
             end
 
             WLOAD1: begin
+                busy = 1;
                 n_state = WLOAD2;
 
                 load_weight_vector[0] = 1;
                 weights[0] = inputs;
             end
             WWAIT1: begin
+                busy = 1;
                 if(load_weights)
                     n_state = WLOAD2;
             end
                 
             WLOAD2: begin
+                busy = 1;
                 n_state = WWAIT2;
 
                 load_weight_vector[1] = 1;
@@ -152,22 +158,26 @@ module systolic_array #(
             end
 
             WWAIT2: begin
+                busy = 1;
                 if(load_weights)
                     n_state = WLOAD3;
             end
 
             WLOAD3: begin
+                busy = 1;
                 n_state = WLOAD4;
 
                 load_weight_vector[2] = 1;
                 weights[2] = inputs;
             end
             WWAIT3: begin
+                busy = 1;
                 if(load_weights)
                     n_state = WLOAD4;
             end
             
             WLOAD4: begin
+                busy = 1;
                 n_state = WWAIT4;
 
                 load_weight_vector[3] = 1;
@@ -175,41 +185,49 @@ module systolic_array #(
             end
 
             WWAIT4: begin
+                busy = 1;
                 if(load_weights)
                     n_state = WLOAD5;
             end
 
             WLOAD5: begin
+                busy = 1;
                 n_state = WLOAD6;
 
                 load_weight_vector[4] = 1;
                 weights[4] = inputs;
             end
             WWAIT5: begin
+                busy = 1;
                 if(load_weights)
                     n_state = WLOAD6;
             end
             WLOAD6: begin
+                busy = 1;
                 n_state = WWAIT6;
 
                 load_weight_vector[5] = 1;
                 weights[5] = inputs;
             end
             WWAIT6: begin
+                busy = 1;
                 if(load_weights)
                     n_state = WLOAD7;
             end
             WLOAD7: begin
+                busy = 1;
                 n_state = WLOAD8;
 
                 load_weight_vector[6] = 1;
                 weights[6] = inputs;
             end
             WWAIT7: begin
+                busy = 1;
                 if(load_weights)
                     n_state = WLOAD8;
             end
             WLOAD8: begin
+                busy = 1;
                 n_state = IDLE;
 
                 load_weight_vector[7] = 1;
@@ -217,6 +235,7 @@ module systolic_array #(
             end
 
             ILOAD: begin
+                busy = 1;
                 n_state = WAIT;
                 if(in_count == 4'd8) begin
                     n_in_count = 4'd1;
@@ -232,6 +251,7 @@ module systolic_array #(
             end
 
             WAIT: begin
+                busy = 1;
                 if(load_inputs) begin
                     n_state = ILOAD;
                     n_in_count = in_count + 1;
@@ -239,6 +259,7 @@ module systolic_array #(
             end
 
             CALC: begin
+                busy = 1;
                 // Continue shifting the input matrix down to put the inputs in the right place
                 man_load = 1;    //Probably wrong, might need to make an or signal. Need to send to PEs
                 for(int c = 0; c < 8; c++) begin
@@ -263,6 +284,7 @@ module systolic_array #(
                 end
             end
             OLOAD: begin
+                busy = 1;
                 man_load = 1;
                 done = 1;
                 for(int c = 0; c < 8; c++) begin

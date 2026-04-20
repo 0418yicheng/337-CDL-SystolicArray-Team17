@@ -39,7 +39,7 @@ module tb_systolic_array ();
     logic busy, done;
     systolic_array DUT (.clk(clk), .n_rst(n_rst), 
                         .load_inputs(load_inputs), .load_weights(load_weights), .inputs(inputs), 
-                        .nan(nan), .inf(inf), .outputs(outputs), .done(done));
+                        .nan(nan), .inf(inf), .outputs(outputs), .done(done), .busy(done));
 
     task write_weights;
         input logic[63:0] rows [7:0];
