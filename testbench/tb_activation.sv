@@ -33,6 +33,7 @@ module tb_activation ();
     endtask
 
     logic [3:0] activation_mode;
+
     logic [63:0] biased_outputs;
     logic bias_done;
     logic [63:0] activation_outputs;
@@ -74,6 +75,17 @@ module tb_activation ();
             64'h30_31_32_33_34_35_36_37, // Row 6
             64'h38_39_3A_3B_3C_3D_3E_3F  // Row 7
         }, 4'd0);
+
+        load_bias_outputs('{
+            64'h0b8_b8_b8_b8_b8_b8_b8_b8, // Row 0
+            64'h08_09_0A_0B_0C_0D_0E_0F, // Row 1
+            64'h10_11_12_13_14_15_16_17, // Row 2
+            64'h18_19_1A_1B_1C_1D_1E_1F, // Row 3
+            64'h20_21_22_23_24_25_26_27, // Row 4
+            64'h28_29_2A_2B_2C_2D_2E_2F, // Row 5
+            64'h30_31_32_33_34_35_36_37, // Row 6
+            64'h38_39_3A_3B_3C_3D_3E_3F  // Row 7
+        }, 4'd3);
 
         
 
