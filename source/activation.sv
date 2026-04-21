@@ -30,19 +30,29 @@ module activation #(
             CALC: begin
                 if(activation_mode == 0) begin  //RELU
                     for(int i = 0; i < 8; i++) begin
-                        activation_outputs[i*8 +: 8] = biased_outputs[i*8 +: 8] < 0 ? 8'd0 : biased_outputs[i*8 +: 8];
+                        activation_outputs[i*8 +: 8] = biased_outputs[7] ? 8'd0 : biased_outputs[i*8 +: 8];
                     end
                 end
                 else if(activation_mode == 4'd1) begin  //Binary
                     for(int i = 0; i < 8; i++) begin
-                        activation_outputs[i*8 +: 8] = biased_outputs[i*8 +: 8] < 0 ? 8'd0 : 8'd1;
+                        activation_outputs[i*8 +: 8] = biased_outputs[7] ? 8'd0 : 8'd1;
                     end
                 end
                 else if(activation_mode == 4'd2) begin  //Identity
                     activation_outputs = biased_outputs;
                 end
-                else if(activation_mode == 4'd3) begin  //L:eaky Relu
-                    //How to multioply by 1/4?
+                else if(activation_mode == 4'd3) begin  //Leaky Relu
+                    //0.25 = 0_0101_000
+                    for(int i = 0; i < 7; i++) begin
+                        if(biased_outputs[7]) begin
+                            activation_outputs[i*8+ : 8] = biased_outputs[i*8+ : 8];
+                            activation_outputs[2:0] = activation_outputs[2:0] - 2;  //Probably need to check for underflow
+                        end
+                        else
+                            activation_outputs[i*8+:8] = biased_outputs[i*8+:8];
+                    end
+
+
                 end
                 else begin
                 end
