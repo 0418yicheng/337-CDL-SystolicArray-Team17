@@ -42,19 +42,22 @@ module activation #(
                     activation_outputs = biased_outputs;
                 end
                 else if(activation_mode == 4'd3) begin  //Leaky Relu
-                    //0.25 = 0_0101_000
-                    for(int i = 0; i < 7; i++) begin
-                        if(biased_outputs[7]) begin
-                            activation_outputs[i*8+ : 8] = biased_outputs[i*8+ : 8];
-                            activation_outputs[2:0] = activation_outputs[2:0] - 2;  //Probably need to check for underflow
+                    //0.25 = 0_0101_000 = 2^(-2)
+                    for(int i = 0; i < 8; i++) begin
+                        logic [7:0] curr_val = biased_outputs[7:0];
+
+                        if(curr_val[7]) begin
+                            if(curr_val[2:0] >= 3'd2)
+                                activation_outputs[i*8 +: 8] = {1'b0, curr_val[6:3], curr_val[2:0] - 3'd2};
+                            else
+                                activation_outputs[i*8 +: 8] = 8'd0; //If the resulting exponent would be less than 0
+
                         end
                         else
                             activation_outputs[i*8+:8] = biased_outputs[i*8+:8];
                     end
 
 
-                end
-                else begin
                 end
 
                 if(count >= 7) begin
@@ -65,6 +68,10 @@ module activation #(
                     n_count = count + 1;
 
                 activation_done = 1;
+            end
+            default: begin
+                activation_done = 0;
+                activation_outputs = 0;
             end
         endcase
     end
