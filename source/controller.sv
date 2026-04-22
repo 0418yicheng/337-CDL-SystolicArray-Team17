@@ -607,6 +607,8 @@ end
                 ready_next = 0;
             end else if (counter == 3) begin
                 ready_next = 1;
+                counter_next = counter + 1;
+                next_state = WAIT_WRITE;
             end else begin
                 next_state = WAIT_WRITE;
                 counter_next = counter + 1;
