@@ -75,7 +75,7 @@ always_ff @(posedge clk or negedge n_rst) begin
         buffer_occupancy <= '0;
         load_input <= '0;
         load_weight <= '0;
-        ready <= '1;
+        ready <= '0;
         weights_loaded <= '0;
         input_read <= '0;
         weight_read <= '0;
