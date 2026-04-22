@@ -143,9 +143,7 @@ module ahb_subordinate (
             
             if (!ready && (write || (read_en && (addr >= 10'h018 && addr <= 10'h01F)))) begin
                 hready = 1'b0;
-            end
-
-            if (need_controller) begin
+            end else if (stall) begin
                 hready = 1'b0;
             end
             // --- Pipeline Control ---
