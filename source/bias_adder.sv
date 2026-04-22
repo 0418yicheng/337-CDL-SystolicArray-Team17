@@ -81,6 +81,13 @@ module bias_adder #(
 
                     n_outputs[i*8 +: 8] = {rs, re, rm[2:0]};
                 end
+
+                if(count == 4'd7) begin
+                    n_count = 0;
+                    n_state = IDLE;
+                end
+                else
+                    n_count = count + 1;
             end
         endcase
     end

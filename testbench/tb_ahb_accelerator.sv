@@ -213,6 +213,8 @@ module tb_ahb_accelerator ();
         execute_transactions(1);
         finish_transactions();
 
+        #(CLK_PERIOD * 10);
+
         $finish;
     end
 endmodule

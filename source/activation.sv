@@ -4,7 +4,7 @@ module activation #(
     // parameters
 ) (
     input logic clk, n_rst,
-    input logic [3:0] activation_mode,
+    input logic [1:0] activation_mode,
     input logic [63:0] biased_outputs,
     input logic bias_done,
     output logic [63:0] activation_outputs,
@@ -44,15 +44,15 @@ module activation #(
                         n_output[i*8 +: 8] = biased_outputs[7] ? 8'd0 : biased_outputs[i*8 +: 8];
                     end
                 end
-                else if(activation_mode == 4'd1) begin  //Binary
+                else if(activation_mode == 2'd1) begin  //Binary
                     for(int i = 0; i < 8; i++) begin
                         n_output[i*8 +: 8] = biased_outputs[7] ? 8'd0 : 8'd1;
                     end
                 end
-                else if(activation_mode == 4'd2) begin  //Identity
+                else if(activation_mode == 2'd2) begin  //Identity
                     n_output = biased_outputs;
                 end
-                else if(activation_mode == 4'd3) begin  //Leaky Relu
+                else if(activation_mode == 2'd3) begin  //Leaky Relu
                     //0.25 = 0_0101_000 = 2^(-2)
                     for(int i = 0; i < 8; i++) begin
                         logic[7:0] curr_val;

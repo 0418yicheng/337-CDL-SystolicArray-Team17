@@ -10,20 +10,15 @@ add wave -noupdate /tb_ahb_accelerator/htrans
 add wave -noupdate /tb_ahb_accelerator/hwrite
 add wave -noupdate /tb_ahb_accelerator/hwdata
 add wave -noupdate /tb_ahb_accelerator/hrdata
+add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/crdata
 add wave -noupdate /tb_ahb_accelerator/hresp
 add wave -noupdate /tb_ahb_accelerator/hready
+add wave -noupdate /tb_ahb_accelerator/DUT/cont/ready
+add wave -noupdate /tb_ahb_accelerator/DUT/cont/state
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/load_inputs
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/load_weights
-add wave -noupdate /tb_ahb_accelerator/DUT/sa/input_vector
-add wave -noupdate /tb_ahb_accelerator/DUT/sa/outputs
-add wave -noupdate /tb_ahb_accelerator/DUT/sa/state
-add wave -noupdate -label William_state /tb_ahb_accelerator/DUT/cont/state
-add wave -noupdate /tb_ahb_accelerator/DUT/cont/array_in
-add wave -noupdate -expand /tb_ahb_accelerator/DUT/sa/input_mat
-add wave -noupdate /tb_ahb_accelerator/DUT/sa/int_inputs
-add wave -noupdate /tb_ahb_accelerator/DUT/sa/int_sums
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {1655000 ps} 0}
+WaveRestoreCursors {{Cursor 1} {2865000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 282
@@ -39,4 +34,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {1554461 ps} {1571865 ps}
+WaveRestoreZoom {1533584 ps} {1603200 ps}
