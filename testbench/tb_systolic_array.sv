@@ -47,11 +47,14 @@ module tb_systolic_array ();
         // @(negedge clk); //Start the FSM. Need one cycle to actually start
         // load_weights = 1;
         begin
-            for(i = 0; i < 8; i++) begin
-                @(negedge clk);
+            for(i = 0; i < 8; i+=2) begin
+                @(posedge clk);
                 load_weights = 1;
                 inputs = rows[i];
-                @(negedge clk);
+                @(posedge clk);
+                inputs = rows[i+1];
+
+                @(posedge clk);
                 load_weights = 0;
                 #(CLK_PERIOD);
             end
@@ -62,12 +65,15 @@ module tb_systolic_array ();
         input logic [63:0] in [7:0];
         integer i;
         begin
-            for(i = 0; i < 8; i++) begin
-                @(negedge clk);
+            for(i = 0; i < 8; i+=2) begin
+                @(posedge clk);
                 load_inputs = 1;
                 inputs = in[i];
 
-                @(negedge clk);
+                @(posedge clk);
+                inputs = in[i+1];
+
+                @(posedge clk);
                 load_inputs = 0;
                 
                 #(2*CLK_PERIOD);
@@ -120,14 +126,14 @@ module tb_systolic_array ();
             
         */
         write_inputs('{
-            64'h28_30_34_38_38_3a_3c_3e, // Row 7
-            64'h30_34_38_3a_3a_3c_3e_28, // Row 6
-            64'h34_38_3a_3c_3c_3e_28_30, // Row 5
-            64'h38_3a_3c_3e_3e_28_30_34, // Row 4
-            64'h3a_3c_3e_28_28_30_34_38, // Row 3
-            64'h3c_3e_28_30_30_34_38_3a, // Row 2
-            64'h3e_28_30_30_34_38_3a_3c, // Row 1
-            64'h3e_3c_3a_38_38_34_30_28  // Row 0
+            64'h38_38_38_38_38_38_38_38, // Row 7
+            64'h38_38_38_38_38_38_38_38, // Row 6
+            64'h38_38_38_38_38_38_38_38, // Row 5
+            64'h38_38_38_38_38_38_38_38, // Row 4
+            64'h38_38_38_38_38_38_38_38, // Row 3
+            64'h38_38_38_38_38_38_38_38, // Row 2
+            64'h38_38_38_38_38_38_38_38, // Row 1
+            64'h38_38_38_38_38_38_38_38  // Row 0
         });
 
         $finish;
