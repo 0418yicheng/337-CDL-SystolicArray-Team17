@@ -75,7 +75,6 @@ always_ff @(posedge clk or negedge n_rst) begin
         buffer_occupancy <= '0;
         load_input <= '0;
         load_weight <= '0;
-        ready <= '0;
         weights_loaded <= '0;
         input_read <= '0;
         weight_read <= '0;
@@ -104,7 +103,6 @@ always_ff @(posedge clk or negedge n_rst) begin
         buffer_occupancy <= buffer_occupancy_next;
         load_input <= load_input_next;
         load_weight <= load_weight_next;
-        ready <= ready_next;
         weights_loaded <= weights_loaded_next;
         input_read <= input_read_next;
         weight_read <= weight_read_next;
@@ -135,7 +133,6 @@ end
         buffer_occupancy_next = buffer_occupancy;
         load_input_next = load_input;
         load_weight_next = load_weight;
-        ready_next = ready;
         weights_loaded_next = weights_loaded;
         input_read_next = input_read;
         weight_read_next = weight_read;
@@ -156,7 +153,7 @@ end
         sent_inputs_next = sent_inputs;
         missing_row_next = missing_row;
         inference_started_next = inference_started;
-
+        ready = 1;
         if (inference_done) begin
             inference_started_next = 0;
         end
@@ -164,7 +161,7 @@ end
         IDLE: begin
             weight_write_next = '0;
             input_write_next = '0;
-            ready_next = 1;
+            ready = ~(read || write);
             load_weight_next = 0;
             load_input_next = 0;
             weight_read_next = '0;
