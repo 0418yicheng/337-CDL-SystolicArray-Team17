@@ -621,6 +621,13 @@ always_comb begin
     WAIT_WRITE: ready = 0;
     READ0: ready = 0;
     READ1: ready = 0;
+    IDLE: begin
+        if (read || write) begin
+            ready = 0;
+        end else begin
+            ready = 1;
+        end
+    end
     default: ready = 1;
     endcase
 end
