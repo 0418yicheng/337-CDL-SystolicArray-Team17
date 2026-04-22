@@ -354,7 +354,7 @@ end
             input_count_next = '0;
         end
         WRITE: begin
-            ready_next = 0;
+            ready  = 0;
             if (addr_in == 10'd0) begin
                 if (weight_row == 4'd8) begin
                     buffer_occupancy_next = 1;
@@ -377,6 +377,7 @@ end
             buffer_occupancy_next = 0;
             weight_write_next = 0;
             input_write_next = 0;
+            ready = 0;
             if (weight_write == 1) begin 
                 if (weight_row == 4'd8) begin
                 weight_row_next = 0;
@@ -393,17 +394,18 @@ end
         READ0: begin
             output_read_next = 1;
             output_count_next = output_count - 1;
-            ready_next = 0;
+            ready = 0;
         end
         READ1: begin
             output_read_next = 0;
+            ready = 0;
         end
         READ2: begin
             controller_read_next = output_rdata;
             output_row_next = output_row + 1;
-            ready_next = 1;
+            ready = 1;
         end
-        default: ready_next = ready;
+        default: output_row_next = output_row;
         endcase
 
         if (sent_inputs && (missing_row == 7)) begin
