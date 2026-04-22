@@ -8,7 +8,8 @@ module systolic_array #(
     input logic [63:0] inputs,
     output logic nan, inf,
     output logic [63:0] outputs,
-    output logic done
+    output logic done,
+    output logic busy
 );
     logic [7:0] load_weight_vector;
     logic [7:0][7:0] weights [7:0];
@@ -26,9 +27,9 @@ module systolic_array #(
     logic man_load; //Signal to manually load input
 
     typedef enum logic[4:0] {IDLE, IDLE_ERR,
-                                WLOAD1, WLOAD2, WLOAD3, WLOAD4, WLOAD5, WLOAD6, WLOAD7, WLOAD8,
-                                WWAIT1, WWAIT2, WWAIT3, WWAIT4, WWAIT5, WWAIT6, WWAIT7,
-                                ILOAD, WAIT, CALC, OLOAD} state_t;
+                                WLOAD1, WLOAD2, WLOAD3, WLOAD4,
+                                WWAIT1, WWAIT2, WWAIT3, WWAIT4,
+                                ILOAD1, ILOAD2, WAIT, CALC, OLOAD} state_t;
 
     state_t state;
     state_t n_state;
@@ -51,7 +52,7 @@ module systolic_array #(
         for(genvar r = 1; r < 7; r++) begin: INT_PE_R
             for(genvar c = 1; c < 8; c++) begin: INT_PE_C
                 pe p (.clk(clk), .n_rst(n_rst), 
-                        .load_weight(load_weight_vector[r]), .load_input(load_inputs || man_load), 
+                        .load_weight(load_weight_vector[r]), .load_input(man_load), 
                         .in_weight(weights[r][c]), .in(int_inputs[r][c-1]), .input_sum(int_sums[r-1][c]), 
                         .input_out(int_inputs[r][c]), .sum(int_sums[r][c]), 
                         .inf(infs[r][c]), .nan(nans[r][c])
@@ -63,7 +64,7 @@ module systolic_array #(
         for(genvar c = 1; c < 8; c++) begin: TB_PE
             //Row 0
             pe p0 (.clk(clk), .n_rst(n_rst), 
-                        .load_weight(load_weight_vector[0]), .load_input(load_inputs || man_load), 
+                        .load_weight(load_weight_vector[0]), .load_input(man_load), 
                         .in_weight(weights[0][c]), .in(int_inputs[0][c-1]), .input_sum(8'd0), 
                         .input_out(int_inputs[0][c]), .sum(int_sums[0][c]), 
                         .inf(infs[0][c]), .nan(nans[0][c])
@@ -71,7 +72,7 @@ module systolic_array #(
 
             //Row 7
             pe p7 (.clk(clk), .n_rst(n_rst), 
-                        .load_weight(load_weight_vector[7]), .load_input(load_inputs || man_load), 
+                        .load_weight(load_weight_vector[7]), .load_input(man_load), 
                         .in_weight(weights[7][c]), .in(int_inputs[7][c-1]), .input_sum(int_sums[6][c]), 
                         .input_out(int_inputs[7][c]), .sum(int_sums[7][c]), 
                         .inf(infs[7][c]), .nan(nans[7][c])
@@ -81,7 +82,7 @@ module systolic_array #(
         //Generate first column that takes in different inputs
         for(genvar r = 1; r < 7; r++) begin: IN_PE
             pe p (.clk(clk), .n_rst(n_rst), 
-                        .load_weight(load_weight_vector[r]), .load_input(load_inputs || man_load), 
+                        .load_weight(load_weight_vector[r]), .load_input(man_load), 
                         .in_weight(weights[r][0]), .in(input_vector[r]), .input_sum(int_sums[r-1][0]), 
                         .input_out(int_inputs[r][0]), .sum(int_sums[r][0]), 
                         .inf(infs[r][0]), .nan(nans[r][0])
@@ -90,7 +91,7 @@ module systolic_array #(
 
         //Top left corner
         pe p_tl (.clk(clk), .n_rst(n_rst), 
-                        .load_weight(load_weight_vector[0]), .load_input(load_inputs || man_load), 
+                        .load_weight(load_weight_vector[0]), .load_input(man_load), 
                         .in_weight(weights[0][0]), .in(input_vector[0]), .input_sum(8'b0), 
                         .input_out(int_inputs[0][0]), .sum(int_sums[0][0]), 
                         .inf(infs[0][0]), .nan(nans[0][0])
@@ -98,7 +99,7 @@ module systolic_array #(
 
         // Bottom left corner
         pe p_bl (.clk(clk), .n_rst(n_rst), 
-                        .load_weight(load_weight_vector[7]), .load_input(load_inputs || man_load), 
+                        .load_weight(load_weight_vector[7]), .load_input(man_load), 
                         .in_weight(weights[7][0]), .in(input_vector[7]), .input_sum(int_sums[6][0]), 
                         .input_out(int_inputs[7][0]), .sum(int_sums[7][0]), 
                         .inf(infs[7][0]), .nan(nans[7][0])
@@ -113,6 +114,8 @@ module systolic_array #(
         n_out_count = out_count;
         man_load = 0;
         done = 0;
+        busy = 0;
+
 
         load_weight_vector = 8'd0;
         for(int r = 0; r < 8; r++) begin
@@ -123,105 +126,91 @@ module systolic_array #(
         
         case(state)
             IDLE: begin
-                if(load_weights)
+                if(load_weights) begin
+                    load_weight_vector[0] = 1;
+                    weights[0] = inputs;
                     n_state = WLOAD1;
+                end
 
-                if(load_inputs)
-                    n_state = ILOAD;
+                if(load_inputs) begin
+                    man_load = 1;
+                    for(int r = 1; r < 8; r++) begin
+                        for(int c = 0; c < 8; c++) begin
+                            n_input_mat[r][c] = input_mat[r-1][c];
+                        end
+                    end
+                    n_input_mat[0] = inputs;
+                    n_state = ILOAD1;
+                end
             end
 
             IDLE_ERR: begin
             end
 
             WLOAD1: begin
-                n_state = WLOAD2;
-
-                load_weight_vector[0] = 1;
-                weights[0] = inputs;
-            end
-            WWAIT1: begin
-                if(load_weights)
-                    n_state = WLOAD2;
-            end
-                
-            WLOAD2: begin
-                n_state = WWAIT2;
+                busy = 1;
+                n_state = WWAIT1;
 
                 load_weight_vector[1] = 1;
                 weights[1] = inputs;
             end
-
-            WWAIT2: begin
-                if(load_weights)
-                    n_state = WLOAD3;
+            WWAIT1: begin
+                busy = 1;
+                if(load_weights) begin
+                    load_weight_vector[2] = 1;
+                    weights[2] = inputs;
+                    n_state = WLOAD2;
+                end
             end
-
-            WLOAD3: begin
-                n_state = WLOAD4;
-
-                load_weight_vector[2] = 1;
-                weights[2] = inputs;
-            end
-            WWAIT3: begin
-                if(load_weights)
-                    n_state = WLOAD4;
-            end
-            
-            WLOAD4: begin
-                n_state = WWAIT4;
+                
+            WLOAD2: begin
+                busy = 1;
+                n_state = WWAIT2;
 
                 load_weight_vector[3] = 1;
                 weights[3] = inputs;
             end
 
-            WWAIT4: begin
-                if(load_weights)
-                    n_state = WLOAD5;
+            WWAIT2: begin
+                busy = 1;
+
+                if(load_weights) begin
+                    load_weight_vector[4] = 1;
+                    weights[4] = inputs;
+                    n_state = WLOAD3;
+                end
             end
 
-            WLOAD5: begin
-                n_state = WLOAD6;
-
-                load_weight_vector[4] = 1;
-                weights[4] = inputs;
-            end
-            WWAIT5: begin
-                if(load_weights)
-                    n_state = WLOAD6;
-            end
-            WLOAD6: begin
-                n_state = WWAIT6;
-
+            WLOAD3: begin
+                busy = 1;
                 load_weight_vector[5] = 1;
                 weights[5] = inputs;
+                n_state = WWAIT4;
             end
-            WWAIT6: begin
-                if(load_weights)
-                    n_state = WLOAD7;
-            end
-            WLOAD7: begin
-                n_state = WLOAD8;
 
-                load_weight_vector[6] = 1;
-                weights[6] = inputs;
+            WWAIT4: begin
+                busy = 1;
+                if(load_weights) begin
+                    load_weight_vector[6] = 1;
+                    weights[6] = inputs;
+                    n_state = WLOAD4;
+                end
             end
-            WWAIT7: begin
-                if(load_weights)
-                    n_state = WLOAD8;
-            end
-            WLOAD8: begin
-                n_state = IDLE;
 
+            WLOAD4: begin
+                busy = 1;
                 load_weight_vector[7] = 1;
                 weights[7] = inputs;
+
+                n_state = IDLE;
             end
 
-            ILOAD: begin
-                n_state = WAIT;
-                if(in_count == 4'd8) begin
-                    n_in_count = 4'd1;
-                    n_state = CALC;
-                end
+            
+
+            ILOAD1: begin
+                busy = 1;
+                n_state = ILOAD2;
+                man_load = 1;
 
                 for(int r = 1; r < 8; r++) begin
                     for(int c = 0; c < 8; c++) begin
@@ -230,17 +219,41 @@ module systolic_array #(
                 end
                 n_input_mat[0] = inputs;
             end
+            ILOAD2: begin
+                busy = 1;
+                n_state = WAIT;
+                if(in_count == 4'd4) begin
+                    n_in_count = 4'd1;
+                    n_state = CALC;
+                end
+
+                // for(int r = 1; r < 8; r++) begin
+                //     for(int c = 0; c < 8; c++) begin
+                //         n_input_mat[r][c] = input_mat[r-1][c];
+                //     end
+                // end
+                // n_input_mat[0] = inputs;
+            end
 
             WAIT: begin
+                busy = 1;
                 if(load_inputs) begin
-                    n_state = ILOAD;
+                    man_load = 1;
+                    for(int r = 1; r < 8; r++) begin
+                        for(int c = 0; c < 8; c++) begin
+                            n_input_mat[r][c] = input_mat[r-1][c];
+                        end
+                    end
+                    n_input_mat[0] = inputs;
+                    n_state = ILOAD1;
                     n_in_count = in_count + 1;
                 end
             end
 
             CALC: begin
+                busy = 1;
                 // Continue shifting the input matrix down to put the inputs in the right place
-                man_load = 1;    //Probably wrong, might need to make an or signal. Need to send to PEs
+                man_load = 1;
                 for(int c = 0; c < 8; c++) begin
                     n_input_mat[0][c] = 8'd0;
                     for(int r = 1; r < 8; r++) begin
@@ -263,6 +276,7 @@ module systolic_array #(
                 end
             end
             OLOAD: begin
+                busy = 1;
                 man_load = 1;
                 done = 1;
                 for(int c = 0; c < 8; c++) begin

@@ -52,31 +52,67 @@ module tb_bias_adder ();
 
         @(negedge clk);
         done = 1;
-        bias = 64'h02_02_02_02_02_02_02_02;
-        outputs = 64'h01_01_02_03_04_05_06_07;
+        outputs = 64'h00_28_30_38_3c_3e_00_00;
+
 
         @(negedge clk);
-        outputs = 64'h08_09_0A_0B_0C_0D_0E_0F;
+        outputs = 64'h00_00_28_30_38_3c_3e_00;
 
         @(negedge clk);
-        outputs = 64'h10_11_12_13_14_15_16_17;
+        outputs = 64'h00_28_30_38_3c_3e_00_00;
 
         @(negedge clk);
-        outputs = 64'h18_19_1A_1B_1C_1D_1E_1F; // Row 3
+        outputs = 64'h28_30_38_3c_3e_00_00_00;
         
         @(negedge clk);
-        outputs = 64'h20_21_22_23_24_25_26_27; // Row 4
+        outputs = 64'h30_38_3c_3e_00_00_00_28;
         
         @(negedge clk);
-        outputs = 64'h28_29_2A_2B_2C_2D_2E_2F; // Row 5
+        outputs = 64'h38_3c_3e_00_00_00_28_30;
 
         @(negedge clk);
-        outputs = 64'h30_31_32_33_34_35_36_37; // Row 6
+        outputs = 64'h3c_3e_00_00_00_28_30_38;
         
         @(negedge clk);
-        outputs = 64'h38_39_3A_3B_3C_3D_3E_3F;  // Row 7
+        outputs = 64'h3e_00_00_00_28_30_38_3c;
+
+        @(negedge clk);
+        done = 0;
 
         #(2*CLK_PERIOD);
+
+        @(negedge clk);
+        done = 1;
+        outputs = 64'h00_28_30_38_3c_3e_00_00;
+        bias = 64'h30_30_30_30_30_30_30_30;
+
+
+        @(negedge clk);
+        outputs = 64'h00_00_28_30_38_3c_3e_00;
+
+        @(negedge clk);
+        outputs = 64'h00_28_30_38_3c_3e_00_00;
+
+        @(negedge clk);
+        outputs = 64'h28_30_38_3c_3e_00_00_00;
+        
+        @(negedge clk);
+        outputs = 64'h30_38_3c_3e_00_00_00_28;
+        
+        @(negedge clk);
+        outputs = 64'h38_3c_3e_00_00_00_28_30;
+
+        @(negedge clk);
+        outputs = 64'h3c_3e_00_00_00_28_30_38;
+        
+        @(negedge clk);
+        outputs = 64'h3e_00_00_00_28_30_38_3c;
+
+        @(negedge clk);
+        done = 0;
+
+        #(2*CLK_PERIOD);
+
         $finish;
     end
 endmodule

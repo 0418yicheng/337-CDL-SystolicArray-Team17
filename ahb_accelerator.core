@@ -1,5 +1,5 @@
 CAPI=2:
-name: "u337mg157:ece337:ahb_accelerator:1.0.0"
+name: "u337mg030:ece337:ahb_accelerator:1.0.0"
 description: ""
 
 filesets:
@@ -19,7 +19,7 @@ filesets:
     synth:
         depend:
             - "ece337:tech:AMI_05_LIB"
-            - "u337mg157:ece337:ahb_accelerator_syn"
+            - "u337mg030:ece337:ahb_accelerator_syn"
 
     tb:
         files:
@@ -29,7 +29,7 @@ filesets:
             # - "data/file.txt": { file_type: user }
         file_type: systemVerilogSource
         depend:
-            - "u337mg157:ece337:questafiles"
+            - "u337mg030:ece337:questafiles"
             - "ece337:course-lib:sram1024x32_wrapper"
             - "ece337:course-lib:ahb_model_updated"
 
@@ -38,7 +38,7 @@ filesets:
             - "scripts/syn_ahb_accelerator.tcl"
         file_type: tclSource
         depend:
-            - "u337mg157:ece337:synfiles"
+            - "u337mg030:ece337:synfiles"
 
 targets:
     default: &default
@@ -94,7 +94,7 @@ targets:
         toplevel: ahb_accelerator
         tools:
             design_compiler:
-                script_dir: "src/u337mg157_ece337_synfiles_0"
+                script_dir: "src/u337mg030_ece337_synfiles_0"
                 dc_script: "synth.tcl"
                 report_dir: "reports"
                 target_library: "/home/ecegrid/a/ece337/summer24-refactor/tech/ami05/osu05_stdcells.db"

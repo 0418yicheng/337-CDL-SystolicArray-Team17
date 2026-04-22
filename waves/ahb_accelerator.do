@@ -55,7 +55,7 @@ TreeUpdate [SetDefaultTree]
 WaveRestoreCursors {{Cursor 1} {902739 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
-configure wave -valuecolwidth 152
+configure wave -valuecolwidth 282
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10

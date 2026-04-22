@@ -11,64 +11,83 @@ module bias_adder #(
     output logic bias_done
 );
 
-    typedef enum logic[3:0] {IDLE, LOAD1, LOAD2, LOAD3, LOAD4, LOAD5, LOAD6, LOAD7, LOAD8} state_t;
+    typedef enum logic {IDLE, LOAD} state_t;
     state_t state;
     state_t n_state;
+    logic [2:0] count, n_count;
+    logic [63:0] n_outputs;
 
     always_comb begin
         n_state = state;
+        n_count = count;
         case(state)
             IDLE: begin
                 bias_done = 0;
                 if(done)
-                    n_state = LOAD1;
+                    n_state = LOAD;
                 
-                biased_outputs = 64'd0;
+                n_outputs = 64'd0;
             end
-            LOAD1: begin
+            LOAD: begin
                 bias_done = 1;
-                biased_outputs = outputs + bias;
-                n_state = LOAD2;
-            end
-            LOAD2: begin
-                bias_done = 1;
-                biased_outputs = outputs + bias;
-                n_state = LOAD3;
-            end
-            LOAD3: begin
-                bias_done = 1;
-                biased_outputs = outputs + bias;
-                n_state = LOAD4;
-            end
-            LOAD4: begin
-                bias_done = 1;
-                biased_outputs = outputs + bias;
-                n_state = LOAD5;
-            end
-            LOAD5: begin
-                bias_done = 1;
-                biased_outputs = outputs + bias;
-                n_state = LOAD6;
-            end
-            LOAD6: begin
-                bias_done = 1;
-                biased_outputs = outputs + bias;
-                n_state = LOAD7;
-            end
-            LOAD7: begin
-                bias_done = 1;
-                biased_outputs = outputs + bias;
-                n_state = LOAD8;
-            end
-            LOAD8: begin
-                bias_done = 1;
-                biased_outputs = outputs + bias;
-                n_state = IDLE;
-            end
-            default: begin
-                bias_done = 1;
-                n_state = IDLE;
-                biased_outputs = 64'd0;
+                for(int i = 0; i < 8; i++) begin
+                    logic [7:0] a, b;
+                    logic [3:0] ea, eb, re;
+                    logic [4:0] ma, mb, rm;
+                    logic sa, sb, rs;
+                    
+                    a = outputs[i*8 +: 8];
+                    b = bias[i*8 +: 8];
+                    sa = a[7]; sb = b[7];
+                    ea = a[6:3]; eb = b[6:3];
+
+                    // 1. Extract Mantissa with hidden bit
+                    ma = (ea == 0) ? {2'b0, a[2:0]} : {2'b01, a[2:0]};
+                    mb = (eb == 0) ? {2'b0, b[2:0]} : {2'b01, b[2:0]};
+
+                    // 2. Align exponents and handle Sign-Magnitude
+                    if (sa == sb) begin
+                        // SAME SIGNS: Standard Addition
+                        rs = sa;
+                        if (ea >= eb) begin
+                            re = ea;
+                            rm = ma + (mb >> (ea - eb));
+                        end else begin
+                            re = eb;
+                            rm = mb + (ma >> (eb - ea));
+                        end
+                        // Normalize for addition (shift right if carry)
+                        if (rm[4]) begin
+                            rm = rm >> 1;
+                            re = re + 1;
+                        end
+                    end else begin
+                        // DIFFERENT SIGNS: Subtraction
+                        if ((ea > eb) || (ea == eb && ma >= mb)) begin
+                            rs = sa;
+                            re = ea;
+                            rm = ma - (mb >> (ea - eb));
+                        end else begin
+                            rs = sb;
+                            re = eb;
+                            rm = mb - (ma >> (eb - ea));
+                        end
+                        // Normalize for subtraction (shift left if leading zeros)
+                        if (rm[3] == 0 && re > 0) begin
+                            rm = rm << 1;
+                            re = re - 1;
+                        end
+                    end
+
+                    n_outputs[i*8 +: 8] = {rs, re, rm[2:0]};
+                end
+
+                if(count == 4'd7) begin
+                    n_count = 0;
+                    n_state = IDLE;
+                end
+                else
+                    n_count = count + 1;
             end
         endcase
     end
@@ -76,9 +95,14 @@ module bias_adder #(
     always_ff @(posedge clk, negedge n_rst) begin
         if(!n_rst) begin
             state <= IDLE;
+            count <= 0;
+            biased_outputs <= 0;
         end
-        else
+        else begin
             state <= n_state;
+            count <= n_count;
+            biased_outputs <= n_outputs;
+        end
     end
 
 endmodule

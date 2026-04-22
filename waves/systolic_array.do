@@ -10,16 +10,21 @@ add wave -noupdate -expand -group Outputs /tb_systolic_array/nan
 add wave -noupdate -expand -group Outputs /tb_systolic_array/inf
 add wave -noupdate -expand -group Outputs /tb_systolic_array/outputs
 add wave -noupdate -expand -group Outputs /tb_systolic_array/busy
+add wave -noupdate -expand -group Internal -expand /tb_systolic_array/DUT/weights
 add wave -noupdate -expand -group Internal /tb_systolic_array/DUT/load_weight_vector
 add wave -noupdate -expand -group Internal /tb_systolic_array/DUT/input_mat
-add wave -noupdate -expand -group Internal -expand /tb_systolic_array/DUT/output_mat
+add wave -noupdate -expand -group Internal /tb_systolic_array/DUT/output_mat
 add wave -noupdate -expand -group Internal /tb_systolic_array/DUT/state
 add wave -noupdate -expand -group Internal /tb_systolic_array/DUT/in_count
 add wave -noupdate -expand -group Internal /tb_systolic_array/DUT/out_count
-add wave -noupdate -expand /tb_systolic_array/DUT/int_inputs
-add wave -noupdate -expand /tb_systolic_array/DUT/int_sums
+add wave -noupdate /tb_systolic_array/DUT/int_inputs
+add wave -noupdate /tb_systolic_array/DUT/int_sums
+add wave -noupdate -group {PE(0, 0)} /tb_systolic_array/DUT/p_tl/in
+add wave -noupdate -group {PE(0, 0)} /tb_systolic_array/DUT/p_tl/input_sum
+add wave -noupdate -group {PE(0, 0)} /tb_systolic_array/DUT/p_tl/sum
+add wave -noupdate -group {PE(0, 0)} /tb_systolic_array/DUT/p_tl/weight
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {321791 ps} 0}
+WaveRestoreCursors {{Cursor 1} {50000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 152
 configure wave -valuecolwidth 306
@@ -35,4 +40,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {31534 ps}
+WaveRestoreZoom {0 ps} {7383 ps}

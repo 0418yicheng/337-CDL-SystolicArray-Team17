@@ -166,33 +166,33 @@ module tb_ahb_accelerator ();
 
         // Loading Inputs
         test_name = "Set Inputs";
-        enqueue_write(10'h008, 3'b011, 64'h0100_0000_0000_0000);
-        enqueue_write(10'h008, 3'b011, 64'h0001_0000_0000_0000);
-        enqueue_write(10'h008, 3'b011, 64'h0000_0100_0000_0000);
-        enqueue_write(10'h008, 3'b011, 64'h0000_0001_0000_0000);
-        enqueue_write(10'h008, 3'b011, 64'h0000_0000_0100_0000);
-        enqueue_write(10'h008, 3'b011, 64'h0000_0000_0001_0000);
-        enqueue_write(10'h008, 3'b011, 64'h0000_0000_0000_0100);
-        enqueue_write(10'h008, 3'b011, 64'h0000_0000_0000_0001);
+        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
+        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
+        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
+        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
+        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
+        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
+        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
+        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
         execute_transactions(8);
         finish_transactions();
         #(CLK_PERIOD * 5);
         // Loading Weights
         test_name = "Set Weights";
-        enqueue_write(10'h000, 3'b011, 64'h0102_0304_0102_0102);
-        enqueue_write(10'h000, 3'b011, 64'h0201_0203_0102_0304);
-        enqueue_write(10'h000, 3'b011, 64'h0302_0102_0102_0102);
-        enqueue_write(10'h000, 3'b011, 64'h0403_0201_0102_0304);
-        enqueue_write(10'h000, 3'b011, 64'h0102_0304_0201_0102);
-        enqueue_write(10'h000, 3'b011, 64'h0201_0203_0201_0304);
-        enqueue_write(10'h000, 3'b011, 64'h0302_0102_0201_0102);
-        enqueue_write(10'h000, 3'b011, 64'h0403_0201_0201_0304);
+        enqueue_write(10'h000, 3'b011, 64'h38_00_00_00_00_00_00_00);
+        enqueue_write(10'h000, 3'b011, 64'h00_38_00_00_00_00_00_00);
+        enqueue_write(10'h000, 3'b011, 64'h00_00_38_00_00_00_00_00);
+        enqueue_write(10'h000, 3'b011, 64'h00_00_00_38_00_00_00_00);
+        enqueue_write(10'h000, 3'b011, 64'h00_00_00_00_38_00_00_00);
+        enqueue_write(10'h000, 3'b011, 64'h00_00_00_00_00_38_00_00);
+        enqueue_write(10'h000, 3'b011, 64'h00_00_00_00_00_00_38_00);
+        enqueue_write(10'h000, 3'b011, 64'h04_00_00_00_00_00_00_38);
         execute_transactions(8);
         finish_transactions();
         #(CLK_PERIOD * 5);
 
         test_name = "Load Biases";
-        enqueue_write(10'h010, 3'b011, 64'h0101_0101_0101_0101); // Biases
+        enqueue_write(10'h010, 3'b011, 64'h0); // Biases
         execute_transactions(1);
         finish_transactions();
         test_name = "Activation: Identity";
@@ -212,6 +212,8 @@ module tb_ahb_accelerator ();
         enqueue_read(10'h018, 3'b011, 64'h0203_0404_0203_0203); // Read Output
         execute_transactions(1);
         finish_transactions();
+        #(CLK_PERIOD * 10);
+
         #(CLK_PERIOD * 10);
 
         $finish;
