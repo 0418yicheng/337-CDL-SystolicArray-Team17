@@ -15,6 +15,7 @@ module bias_adder #(
     state_t state;
     state_t n_state;
     logic [2:0] count, n_count;
+    logic [63:0] n_outputs;
 
     always_comb begin
         n_state = state;
@@ -25,7 +26,7 @@ module bias_adder #(
                 if(done)
                     n_state = LOAD;
                 
-                biased_outputs = 64'd0;
+                n_outputs = 64'd0;
             end
             LOAD: begin
                 bias_done = 1;
@@ -78,7 +79,7 @@ module bias_adder #(
                         end
                     end
 
-                    biased_outputs[i*8 +: 8] = {rs, re, rm[2:0]};
+                    n_outputs[i*8 +: 8] = {rs, re, rm[2:0]};
                 end
             end
         endcase
@@ -88,10 +89,13 @@ module bias_adder #(
         if(!n_rst) begin
             state <= IDLE;
             count <= 0;
+            biased_outputs <= 0;
         end
-        else
+        else begin
             state <= n_state;
             count <= n_count;
+            biased_outputs <= n_outputs;
+        end
     end
 
 endmodule
