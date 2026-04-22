@@ -169,11 +169,11 @@ module ahb_subordinate (
                 if (addr >= 10'h000 && addr <= 10'h007) begin
                     cwdata = hwdata & byte_mask;
                     caddr = 10'h000;
-                    if (ready) cwrite = 1'b1;
+                    cwrite = 1'b1;
                 end else if (addr >= 10'h008 && addr <= 10'h00F) begin
                     cwdata = hwdata & byte_mask;
                     caddr = 10'h008;
-                    if (ready) cwrite = 1'b1; 
+                    cwrite = 1'b1; 
                 end else if (addr >= 10'h010 && addr <= 10'h017) begin
                     if (ready) n_bias = (hwdata & byte_mask) | (bias & ~byte_mask);
                 end else if (addr == 10'h022) begin
