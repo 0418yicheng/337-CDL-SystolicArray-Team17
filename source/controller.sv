@@ -164,7 +164,7 @@ end
         IDLE: begin
             weight_write_next = '0;
             input_write_next = '0;
-            ready_next = 1;
+            ready_next = 0;
             load_weight_next = 0;
             load_input_next = 0;
             weight_read_next = '0;
@@ -380,6 +380,7 @@ end
             buffer_occupancy_next = 0;
             weight_write_next = 0;
             input_write_next = 0;
+            ready_next = 1;
             if (weight_write == 1) begin 
                 if (weight_row == 4'd8) begin
                 weight_row_next = 0;
