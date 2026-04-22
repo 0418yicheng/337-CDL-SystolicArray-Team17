@@ -177,7 +177,7 @@ module tb_ahb_accelerator ();
         execute_transactions(8);
         finish_transactions();
         #(CLK_PERIOD * 5);
-        // // Loading Weights
+        // Loading Weights
         test_name = "Set Weights";
         enqueue_write(10'h000, 3'b011, 64'h0102_0304_0102_0102);
         enqueue_write(10'h000, 3'b011, 64'h0201_0203_0102_0304);
@@ -204,7 +204,7 @@ module tb_ahb_accelerator ();
         execute_transactions(1);
         finish_transactions();
         test_name = "Start Inference";
-        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0001); // Start Inference
+        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0003); // Start Inference
         execute_transactions(1);
         finish_transactions();
         #(CLK_PERIOD * 150);
@@ -212,6 +212,7 @@ module tb_ahb_accelerator ();
         enqueue_read(10'h018, 3'b011, 64'h0203_0404_0203_0203); // Read Output
         execute_transactions(1);
         finish_transactions();
+        #(CLK_PERIOD * 10);
 
         $finish;
     end

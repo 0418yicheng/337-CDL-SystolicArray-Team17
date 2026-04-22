@@ -161,7 +161,8 @@ module ahb_accelerator #(
         .input_rdata(input_rdata),
         .weight_rdata(weight_rdata),
         .output_rdata(output_rdata),
-        .input_read(input_read)
+        .input_read(input_read),
+        .inference_done(inference_done)
     );
 
     activation act (
