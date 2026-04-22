@@ -129,7 +129,7 @@ module ahb_subordinate (
         
             // --- Controller Access Stall Check ---
             // If the device isn't ready AND we are executing ANY write OR reading from the controller outputs, stall the bus!
-            if (!ready && (write || (read_en && (addr >= 10'h018 && addr <= 10'h01F)))) begin
+            if (!ready && ((write && (addr >= 10'h000 && addr <= 10'h00F)) || (read_en && (addr >= 10'h018 && addr <= 10'h01F)))) begin
                 hready = 1'b0;
             end
 
@@ -177,14 +177,14 @@ module ahb_subordinate (
                 end else if (addr >= 10'h010 && addr <= 10'h017) begin
                     if (ready) n_bias = (hwdata & byte_mask) | (bias & ~byte_mask);
                 end else if (addr == 10'h022) begin
-                    if (byte_mask[16] && ready) begin
+                    if (byte_mask[16]) begin
                         n_start_inference = hwdata[16];
                         if (!is_busy_access) begin // Prevent the write if it causes a busy collision
                             n_load_weights = hwdata[17]; 
                         end
                     end
                 end else if (addr == 10'h024) begin
-                    if (byte_mask[32] && ready) begin
+                    if (byte_mask[32]) begin
                         n_activation_mode = hwdata[33:32];
                     end
                 end
@@ -196,7 +196,7 @@ module ahb_subordinate (
                     hrdata = bias;
                 end else if (addr >= 10'h018 && addr <= 10'h01F) begin
                     hrdata = crdata;
-                    if (ready) cread = 1'b1; // Safe pulse, only fires when stall releases
+                    cread = 1'b1; // Safe pulse, only fires when stall releases
                 end else if (addr == 10'h020 || addr == 10'h021) begin
                     hrdata = {48'b0, 6'b0, inf_reg, nan_reg, 4'b0, ft_reg, 1'b0, oe_reg, boe_reg};
                 end else if (addr == 10'h022) begin

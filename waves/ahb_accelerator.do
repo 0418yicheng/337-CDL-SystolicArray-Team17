@@ -21,6 +21,7 @@ add wave -noupdate /tb_ahb_accelerator/DUT/cwrite
 add wave -noupdate /tb_ahb_accelerator/DUT/cread
 add wave -noupdate -radix decimal /tb_ahb_accelerator/BFM/num_transactions_left
 add wave -noupdate /tb_ahb_accelerator/DUT/ready
+add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/inference_done
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/outputs
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/done
 add wave -noupdate /tb_ahb_accelerator/DUT/cont/array_in
@@ -43,6 +44,8 @@ add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[3]}
 add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[2]}
 add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[1]}
 add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[0]}
+add wave -noupdate /tb_ahb_accelerator/DUT/db/output_sel
+add wave -noupdate /tb_ahb_accelerator/DUT/db/output_row_write
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/outputs
 add wave -noupdate /tb_ahb_accelerator/DUT/ba/biased_outputs
 add wave -noupdate /tb_ahb_accelerator/DUT/act/activation_outputs
@@ -51,8 +54,14 @@ add wave -noupdate /tb_ahb_accelerator/DUT/sa/inputs
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/load_inputs
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/load_weights
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/done
+add wave -noupdate /tb_ahb_accelerator/DUT/db/activations_latch0
+add wave -noupdate /tb_ahb_accelerator/DUT/db/start_output0
+add wave -noupdate /tb_ahb_accelerator/DUT/db/read_write_output0
+add wave -noupdate /tb_ahb_accelerator/DUT/db/output0_done
+add wave -noupdate /tb_ahb_accelerator/DUT/db/activations
+add wave -noupdate /tb_ahb_accelerator/DUT/db/activations_latch1
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {902739 ps} 0}
+WaveRestoreCursors {{Cursor 1} {2214039 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 282
@@ -68,4 +77,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {0 ps} {3108 ns}
+WaveRestoreZoom {1779531 ps} {2632657 ps}

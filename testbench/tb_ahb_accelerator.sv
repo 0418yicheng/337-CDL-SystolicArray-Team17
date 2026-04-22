@@ -203,12 +203,14 @@ module tb_ahb_accelerator ();
         enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0002); // Load Weights
         execute_transactions(1);
         finish_transactions();
+        #(CLK_PERIOD * 30);
         test_name = "Start Inference";
-        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0003); // Start Inference
+        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0001); // Start Inference
         execute_transactions(1);
         finish_transactions();
-        #(CLK_PERIOD * 150);
+        #(CLK_PERIOD * 55);
 
+        test_name = "Read Output";
         enqueue_read(10'h018, 3'b011, 64'h0203_0404_0203_0203); // Read Output
         execute_transactions(1);
         finish_transactions();

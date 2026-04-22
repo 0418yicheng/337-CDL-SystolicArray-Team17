@@ -167,7 +167,7 @@ module data_buffer #(
             output_row_write_next = '0;
         end
 
-        if (done_buffered) begin
+        if (done_buffered_2) begin
             output_sel_next = 1;
         end
 
