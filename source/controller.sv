@@ -621,7 +621,6 @@ always_comb begin
     WAIT_WRITE: ready = 0;
     READ0: ready = 0;
     READ1: ready = 0;
-    IDLE: ready = ~(read || write);
     default: ready = 1;
     endcase
 end
