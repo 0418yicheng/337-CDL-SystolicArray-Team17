@@ -604,6 +604,8 @@ end
             if (counter == 4) begin
                 counter_next = '0;
                 next_state = IDLE;
+                ready_next = 0;
+            end else if (counter == 3) begin
                 ready_next = 1;
             end else begin
                 next_state = WAIT_WRITE;
@@ -615,6 +617,7 @@ end
             if (counter == 4) begin
                 counter_next = '0;
                 next_state = READ2;
+                ready_next = 1;
             end else begin
                 counter_next = counter + 1;
                 next_state = READ1;
@@ -622,7 +625,7 @@ end
         end 
         READ2: begin 
             next_state = IDLE;
-            ready_next = 1;
+            ready_next = 0;
         end
         default: next_state = IDLE;
         endcase
