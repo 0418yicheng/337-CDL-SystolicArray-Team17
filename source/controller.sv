@@ -75,7 +75,7 @@ always_ff @(posedge clk or negedge n_rst) begin
         buffer_occupancy <= '0;
         load_input <= '0;
         load_weight <= '0;
-        ready <= '0;
+        ready <= '1;
         weights_loaded <= '0;
         input_read <= '0;
         weight_read <= '0;
@@ -135,7 +135,7 @@ end
         buffer_occupancy_next = buffer_occupancy;
         load_input_next = load_input;
         load_weight_next = load_weight;
-        ready_next = ready;
+
         weights_loaded_next = weights_loaded;
         input_read_next = input_read;
         weight_read_next = weight_read;
@@ -164,7 +164,6 @@ end
         IDLE: begin
             weight_write_next = '0;
             input_write_next = '0;
-            ready_next = 0;
             load_weight_next = 0;
             load_input_next = 0;
             weight_read_next = '0;
@@ -357,7 +356,7 @@ end
             input_count_next = '0;
         end
         WRITE: begin
-            ready_next = 0;
+
             if (addr_in == 10'd0) begin
                 if (weight_row == 4'd8) begin
                     buffer_occupancy_next = 1;
@@ -380,7 +379,6 @@ end
             buffer_occupancy_next = 0;
             weight_write_next = 0;
             input_write_next = 0;
-            ready_next = 1;
             if (weight_write == 1) begin 
                 if (weight_row == 4'd8) begin
                 weight_row_next = 0;
@@ -397,7 +395,6 @@ end
         READ0: begin
             output_read_next = 1;
             output_count_next = output_count - 1;
-            ready_next = 0;
         end
         READ1: begin
             output_read_next = 0;
@@ -406,7 +403,7 @@ end
             controller_read_next = output_rdata;
             output_row_next = output_row + 1;
         end
-        default: ready_next = ready;
+        default: output_row_next = output_row;
         endcase
 
         if (sent_inputs && (missing_row == 7)) begin
@@ -429,13 +426,18 @@ end
 
     always_comb begin
         next_state = state;
+        ready_next = ready;
         counter_next = counter;
         case(state)
         IDLE: begin
-            if (write) next_state = WRITE;
+            if (write) begin next_state = WRITE;
+                        ready_next = 0;
+            end
             else if (load_weights) next_state = LOAD_WEIGHT0;
             else if (start_inference && !inference_started) next_state = LOAD_INPUT0;
-            else if (read) next_state = READ0;
+            else if (read) begin next_state = READ0;
+                        ready_next = 0;
+            end
             else next_state = IDLE;
         end
         LOAD_WEIGHT0: next_state = LOAD_WEIGHT1;
