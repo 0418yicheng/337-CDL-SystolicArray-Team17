@@ -616,7 +616,7 @@ end
         endcase
     end
 always_comb begin
-    case(state):
+    case(state)
     WRITE: ready = 0;
     WAIT_WRITE: ready = 0;
     READ0: ready = 0;
