@@ -405,7 +405,6 @@ end
         READ2: begin
             controller_read_next = output_rdata;
             output_row_next = output_row + 1;
-            ready_next = 1;
         end
         default: ready_next = ready;
         endcase
@@ -603,6 +602,7 @@ end
             if (counter == 4) begin
                 counter_next = '0;
                 next_state = IDLE;
+                ready_next = 1;
             end else begin
                 next_state = WAIT_WRITE;
                 counter_next = counter + 1;
@@ -618,7 +618,10 @@ end
                 next_state = READ1;
             end
         end 
-        READ2: next_state = IDLE;
+        READ2: begin 
+            next_state = IDLE;
+            ready_next = 1;
+        end
         default: next_state = IDLE;
         endcase
     end
