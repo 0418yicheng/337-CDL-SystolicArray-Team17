@@ -616,12 +616,11 @@ end
         endcase
     end
 always_comb begin
-    case(state):
+    case(state)
     WRITE: ready = 0;
     WAIT_WRITE: ready = 0;
     READ0: ready = 0;
     READ1: ready = 0;
-    IDLE: ready = ~(read || write);
     default: ready = 1;
     endcase
 end
