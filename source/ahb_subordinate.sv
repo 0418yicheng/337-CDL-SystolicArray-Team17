@@ -57,18 +57,9 @@ module ahb_subordinate (
     logic n_nan_reg, nan_reg;
     logic n_inf_reg, inf_reg;
     logic n_ft_reg, ft_reg;
-    logic need_controller;
-    logic stall, stall_next;
+
     // --- Byte Mask Generator ---
     logic [63:0] byte_mask;
-
-    always_ff @(posedge clk or negedge n_rst) begin
-       if (!n_rst) begin
-            stall <= '0;
-       end else begin
-        stall <= stall_next;
-       end
-    end
     always_comb begin
         case (size)
             2'b00: byte_mask = 64'hFF << (addr[2:0] * 8);
@@ -87,8 +78,7 @@ module ahb_subordinate (
         
         // Check if busy AND trying to write a 1 to the load_weights bit (hwdata[17]) at offset 0x22
         is_busy_access = write && (addr == 10'h022) && byte_mask[16] && hwdata[17] && busy && ready;
-        stall_next = need_controller && !stall && ready;
-        need_controller = hsel && (htrans == 2'b10) && (hwrite || (!hwrite && (haddr >= 10'h018 && haddr <= 10'h01F)));
+
         // Sticky Error Flags
         n_boe_reg = (boe_reg & ~is_error_read) | boe;
         n_oe_reg  = (oe_reg & ~is_error_read) | oe;
@@ -139,13 +129,10 @@ module ahb_subordinate (
         
             // --- Controller Access Stall Check ---
             // If the device isn't ready AND we are executing ANY write OR reading from the controller outputs, stall the bus!
-
-            
             if (!ready && (write || (read_en && (addr >= 10'h018 && addr <= 10'h01F)))) begin
                 hready = 1'b0;
-            end else if (need_controller && !write && !read_en) begin
-                hready = 1'b0;
             end
+
             // --- Pipeline Control ---
             if (hready == 1'b0) begin
                 // Freeze the pipeline state during a stall so we don't lose the transaction
