@@ -153,7 +153,7 @@ end
         sent_inputs_next = sent_inputs;
         missing_row_next = missing_row;
         inference_started_next = inference_started;
-        ready = 1;
+
         if (inference_done) begin
             inference_started_next = 0;
         end
@@ -161,7 +161,6 @@ end
         IDLE: begin
             weight_write_next = '0;
             input_write_next = '0;
-            ready = ~(read || write);
             load_weight_next = 0;
             load_input_next = 0;
             weight_read_next = '0;
@@ -354,7 +353,6 @@ end
             input_count_next = '0;
         end
         WRITE: begin
-            ready  = 0;
             if (addr_in == 10'd0) begin
                 if (weight_row == 4'd8) begin
                     buffer_occupancy_next = 1;
@@ -377,7 +375,6 @@ end
             buffer_occupancy_next = 0;
             weight_write_next = 0;
             input_write_next = 0;
-            ready = 0;
             if (weight_write == 1) begin 
                 if (weight_row == 4'd8) begin
                 weight_row_next = 0;
@@ -394,16 +391,14 @@ end
         READ0: begin
             output_read_next = 1;
             output_count_next = output_count - 1;
-            ready = 0;
+
         end
         READ1: begin
             output_read_next = 0;
-            ready = 0;
         end
         READ2: begin
             controller_read_next = output_rdata;
             output_row_next = output_row + 1;
-            ready = 1;
         end
         default: output_row_next = output_row;
         endcase
@@ -620,6 +615,15 @@ end
         default: next_state = IDLE;
         endcase
     end
-
+always_comb begin
+    case(state):
+    WRITE: ready = 0;
+    WAIT_WRITE: ready = 0;
+    READ0: ready = 0;
+    READ1: ready = 0;
+    IDLE: ready = ~(read || write);
+    default: ready = 1;
+    endcase
+end
 endmodule
 
