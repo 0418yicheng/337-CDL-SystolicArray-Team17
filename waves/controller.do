@@ -3,6 +3,7 @@ quietly WaveActivateNextPane {} 0
 add wave -noupdate /tb_controller/DUT/clk
 add wave -noupdate /tb_controller/DUT/n_rst
 add wave -noupdate /tb_controller/DUT/state
+add wave -noupdate /tb_controller/test_name
 add wave -noupdate -expand -group inputs -color Pink /tb_controller/DUT/read
 add wave -noupdate -expand -group inputs -color Pink /tb_controller/DUT/start_inference
 add wave -noupdate -expand -group inputs -color Pink /tb_controller/DUT/write
@@ -60,7 +61,7 @@ add wave -noupdate -group {next state logic} /tb_controller/DUT/next_state
 add wave -noupdate /tb_controller/DUT/counter
 add wave -noupdate /tb_controller/DUT/no_outputs
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {511975 ps} 0}
+WaveRestoreCursors {{Cursor 1} {373880 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
@@ -76,4 +77,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ps} {1123500 ps}
+WaveRestoreZoom {0 ps} {2436 ns}

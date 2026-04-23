@@ -15,7 +15,7 @@ module tb_tester ();
     logic [63:0] controller_write, activations;
     logic buffer_occupancy, load_input, load_weight, ready, weights_loaded, overrun;
     logic [63:0] controller_read, array_in;
-
+    string test_name;
     // clockgen
     always begin
         clk = 0;
@@ -83,6 +83,7 @@ module tb_tester ();
         controller_write = '0;
         activations = '0;
         reset_dut;
+        test_name = "Writing 8 outputs, then starting inference";
            writepls(10'd8, 64'hABCDABCDABCDABCD);
            writepls(10'd8, 64'hFFFFFFFFFFFFFFFF);
           writepls(10'd8, 64'hAAAAAAAAAAAAAAAA);
@@ -97,6 +98,7 @@ module tb_tester ();
           start_inference = 0;
           repeat(30) @(negedge clk);
          @(negedge clk);
+         test_name = "Getting 8 outputs from systolic array, then reading them out of SRAM";
         done = 1;
         @(negedge clk);
         @(negedge clk);
