@@ -46,20 +46,26 @@ add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[1]}
 add wave -noupdate {/tb_ahb_accelerator/DUT/db/output0/sram0/memory[0]}
 add wave -noupdate /tb_ahb_accelerator/DUT/db/output_sel
 add wave -noupdate /tb_ahb_accelerator/DUT/db/output_row_write
+add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/cont/input_count
+add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/cont/output_count
+add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/cont/buffer_occupancy
+add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/cont/overrun
+add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/sa/nan
+add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/sa/inf
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/outputs
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/bias
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/a
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/b
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/ea
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/eb
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/re
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/ma
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/mb
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/rm
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/sa
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/sb
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/rs
-add wave -noupdate -expand -group Bias /tb_ahb_accelerator/DUT/ba/biased_outputs
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/bias
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/a
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/b
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/ea
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/eb
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/re
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/ma
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/mb
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/rm
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/sa
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/sb
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/rs
+add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/biased_outputs
 add wave -noupdate /tb_ahb_accelerator/DUT/act/activation_outputs
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/done
 add wave -noupdate /tb_ahb_accelerator/DUT/db/activations_latch0
@@ -69,7 +75,7 @@ add wave -noupdate /tb_ahb_accelerator/DUT/db/output0_done
 add wave -noupdate /tb_ahb_accelerator/DUT/db/activations
 add wave -noupdate /tb_ahb_accelerator/DUT/db/activations_latch1
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {4609957 ps} 0}
+WaveRestoreCursors {{Cursor 1} {6926421 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 282
@@ -85,4 +91,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {4246843 ps} {4280982 ps}
+WaveRestoreZoom {651443 ps} {1069142 ps}
