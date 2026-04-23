@@ -234,16 +234,12 @@ module data_buffer #(
                 start_output7_next = 1;
                 read_write_output7_next = 1;
                 activations_latch7_next = activations;
-                if (input_count < 7) begin
-                   activations_latch7_next = '0; 
-                end
                 output_row_write_next = output_row_write + 1;
             end else begin
                 output_row_write_next = '0;
                 output_sel_next = 0;
             end 
 
-        end
         if (weight_write || weight_read) begin
             if (weight_row % 2 == 0) begin
                 start_weight0_next = 1;
