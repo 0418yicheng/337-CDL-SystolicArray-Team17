@@ -21,7 +21,7 @@ add wave -noupdate /tb_ahb_accelerator/DUT/sa/outputs
 add wave -noupdate /tb_ahb_accelerator/DUT/ba/biased_outputs
 add wave -noupdate /tb_ahb_accelerator/DUT/act/activation_outputs
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {13221050 ps} 0}
+WaveRestoreCursors {{Cursor 1} {13222531 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 172
@@ -37,5 +37,10 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {12851379 ps} {12901332 ps}
-bookmark add wave bookmark0 {{0 ps} {13702500 ps}} 0
+WaveRestoreZoom {11667914 ps} {11841384 ps}
+bookmark add wave bookmark0 {{1552137 ps} {3301701 ps}} 0
+bookmark add wave bookmark1 {{3788240 ps} {7287366 ps}} 0
+bookmark add wave bookmark2 {{6738872 ps} {10237998 ps}} 0
+bookmark add wave bookmark3 {{8251018 ps} {10000582 ps}} 0
+bookmark add wave bookmark4 {{10660218 ps} {12409782 ps}} 0
+bookmark add wave bookmark5 {{11667914 ps} {13417478 ps}} 0
