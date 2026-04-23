@@ -341,6 +341,7 @@ module tb_ahb_accelerator ();
             64'h77_77_77_77_77_77_77_77,
             64'h77_77_77_77_77_77_77_77
         }, 4'd8);
+        
         load_biases(64'd79_79_79_79_79_79_79_79);
         set_activation(2'd2);
         start_inference();
