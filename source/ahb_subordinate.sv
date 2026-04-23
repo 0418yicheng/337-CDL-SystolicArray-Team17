@@ -71,20 +71,22 @@ module ahb_subordinate (
     end
 
     logic is_busy_access;
-    logic is_error_read;
+    logic is_error_read_lo;
+    logic is_error_read_hi;
 
     always_comb begin
-        is_error_read = read_en && (addr == 10'h020 || addr == 10'h021);
+        is_error_read_lo = read_en && (addr == 10'h020 || addr == 10'h021);
+        is_error_read_hi = read_en && ((addr == 10'h021) || (addr == 10'h020 && byte_mask[8]));
         
         // Check if busy AND trying to write a 1 to the load_weights bit (hwdata[17]) at offset 0x22
         is_busy_access = write && (addr == 10'h022) && byte_mask[16] && hwdata[17] && busy;
 
         // Sticky Error Flags
-        n_boe_reg = (boe_reg & ~is_error_read) | boe;
-        n_oe_reg  = (oe_reg & ~is_error_read) | oe;
-        n_nan_reg = (nan_reg & ~is_error_read) | nan_flag;
-        n_inf_reg = (inf_reg & ~is_error_read) | inf_flag;
-        n_ft_reg  = (ft_reg & ~is_error_read) | is_busy_access;
+        n_boe_reg = (boe_reg & ~is_error_read_lo) | boe;
+        n_oe_reg  = (oe_reg & ~is_error_read_lo) | oe;
+        n_nan_reg = (nan_reg & ~is_error_read_hi) | nan_flag;
+        n_inf_reg = (inf_reg & ~is_error_read_hi) | inf_flag;
+        n_ft_reg  = (ft_reg & ~is_error_read_lo) | is_busy_access;
 
         // Default Pipeline Clears
         n_write = 1'b0;
