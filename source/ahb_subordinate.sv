@@ -63,8 +63,8 @@ module ahb_subordinate (
     always_comb begin
         case (size)
             2'b00: byte_mask = 64'hFF << (addr[2:0] * 8);
-            2'b01: byte_mask = 64'hFFFF << ({addr[2:1], 1'b0} * 8);
-            2'b10: byte_mask = 64'hFFFF_FFFF << ({addr[2], 2'b00} * 8);
+            2'b01: byte_mask = 64'hFFFF << (addr[2:0] * 8);
+            2'b10: byte_mask = 64'hFFFF_FFFF << (addr[2:0] * 8);
             2'b11: byte_mask = 64'hFFFF_FFFF_FFFF_FFFF;
             default: byte_mask = 64'b0;
         endcase
