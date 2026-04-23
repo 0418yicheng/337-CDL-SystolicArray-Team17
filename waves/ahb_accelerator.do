@@ -8,12 +8,17 @@ add wave -noupdate -color Yellow /tb_ahb_accelerator/haddr
 add wave -noupdate -color Yellow /tb_ahb_accelerator/hsize
 add wave -noupdate -color Yellow /tb_ahb_accelerator/hburst
 add wave -noupdate -color Yellow /tb_ahb_accelerator/htrans
-add wave -noupdate -color Yellow /tb_ahb_accelerator/hwrite
 add wave -noupdate -color Yellow /tb_ahb_accelerator/hwdata
 add wave -noupdate -color Yellow /tb_ahb_accelerator/hrdata
+add wave -noupdate -color Yellow /tb_ahb_accelerator/hwrite
 add wave -noupdate -color Yellow /tb_ahb_accelerator/hresp
 add wave -noupdate -color Yellow /tb_ahb_accelerator/hready
 add wave -noupdate /tb_ahb_accelerator/DUT/ready
+add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/boe_reg
+add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/oe_reg
+add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/nan_reg
+add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/inf_reg
+add wave -noupdate /tb_ahb_accelerator/DUT/ahb_sub/ft_reg
 add wave -noupdate /tb_ahb_accelerator/DUT/caddr
 add wave -noupdate /tb_ahb_accelerator/DUT/cwdata
 add wave -noupdate /tb_ahb_accelerator/DUT/crdata
@@ -52,7 +57,12 @@ add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/cont/buffer_occ
 add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/cont/overrun
 add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/sa/nan
 add wave -noupdate -expand -group Errors /tb_ahb_accelerator/DUT/sa/inf
+add wave -noupdate /tb_ahb_accelerator/DUT/ba/nan
+add wave -noupdate /tb_ahb_accelerator/DUT/ba/inf
 add wave -noupdate /tb_ahb_accelerator/DUT/sa/outputs
+add wave -noupdate /tb_ahb_accelerator/DUT/sa/out_count
+add wave -noupdate /tb_ahb_accelerator/DUT/sa/inputs
+add wave -noupdate /tb_ahb_accelerator/DUT/sa/input_mat
 add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/bias
 add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/a
 add wave -noupdate -group Bias /tb_ahb_accelerator/DUT/ba/b
@@ -75,10 +85,10 @@ add wave -noupdate /tb_ahb_accelerator/DUT/db/output0_done
 add wave -noupdate /tb_ahb_accelerator/DUT/db/activations
 add wave -noupdate /tb_ahb_accelerator/DUT/db/activations_latch1
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {6926421 ps} 0}
+WaveRestoreCursors {{Cursor 1} {12845000 ps} 0}
 quietly wave cursor active 1
 configure wave -namecolwidth 150
-configure wave -valuecolwidth 282
+configure wave -valuecolwidth 211
 configure wave -justifyvalue left
 configure wave -signalnamewidth 1
 configure wave -snapdistance 10
@@ -91,4 +101,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ps
 update
-WaveRestoreZoom {651443 ps} {1069142 ps}
+WaveRestoreZoom {11995300 ps} {12132047 ps}

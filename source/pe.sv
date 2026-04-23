@@ -91,16 +91,19 @@ module pe #(
             sum_is_inf  = (input_sum[6:3] == 4'b1111) && (input_sum[2:0] == 0);
             sum_is_zero = (input_sum[6:0] == 0);
 
-            if(in_is_nan || w_is_nan || sum_is_nan) begin
+            if(in_is_nan || w_is_nan || sum_is_nan) begin   //No nan operations
                 nan = 1;
                 n_sum = 8'h79;
             end
-            else if((w_is_zero && in_is_inf) || (in_is_zero && w_is_inf)) begin
+            else if((w_is_zero && in_is_inf) || (in_is_zero && w_is_inf)) begin //0 x inf = inf
                 nan = 1;
                 n_sum = 8'h79;
             end
-            else if(sum_is_inf) begin
+            else if(sum_is_inf) begin   //inf + x = inf
                 inf = 1;
+                n_sum = input_sum;
+            end
+            else if(in_is_zero || w_is_zero) begin
                 n_sum = input_sum;
             end
             else begin
@@ -119,7 +122,7 @@ module pe #(
                     if(e_temp < 5'd7)
                         e_prod = 4'd0;
                     else 
-                        e_prod = e_temp[3:0] - 4'd7;
+                        e_prod = e_temp - 5'd7;
 
                     // Mantissa multiply: (1.m * 1.m) -> Result is 8 bits [7:0]
                     if(weight[6:0] == 0 || in[6:0] == 0)
@@ -194,7 +197,7 @@ module pe #(
                             m_sum = m_sum >> 1;
                             e_final = e_final + 1;
                         end 
-                        else if (m_sum != 0 && !m_sum[7]) begin // Cancellation
+                        while (m_sum != 0 && !m_sum[7]) begin // Cancellation
                             m_sum = m_sum << 1;
                             e_final = e_final - 1;
                         end

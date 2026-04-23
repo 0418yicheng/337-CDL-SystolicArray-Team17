@@ -8,7 +8,8 @@ module bias_adder #(
     input logic [63:0] bias,
     input logic done,
     output logic [63:0] biased_outputs,
-    output logic bias_done
+    output logic bias_done,
+    output logic nan, inf
 );
 
     typedef enum logic {IDLE, LOAD} state_t;
@@ -25,6 +26,8 @@ module bias_adder #(
     always_comb begin
         n_state = state;
         n_count = count;
+        inf = 0;
+        nan = 0;
         case(state)
             IDLE: begin
                 bias_done = 0;
@@ -35,9 +38,8 @@ module bias_adder #(
             end
             LOAD: begin
                 bias_done = 1;
+                
                 for(int i = 0; i < 8; i++) begin
-                    
-                    
                     a = outputs[i*8 +: 8];
                     b = bias[i*8 +: 8];
                     sa = a[7]; 
@@ -49,8 +51,37 @@ module bias_adder #(
                     ma = (ea == 0) ? {2'b0, a[2:0]} : {2'b01, a[2:0]};
                     mb = (eb == 0) ? {2'b0, b[2:0]} : {2'b01, b[2:0]};
 
+                    //Check if either output or bias are inf, then nan or inf
+                    if((ea == 4'b1111 && ma[2:0] != 3'b0) || (eb == 4'b1111 && mb[2:0] != 3'b0)) begin
+                        nan = 1;
+                        rs = 1;
+                        rm = 5'b11111;
+                        re = 4'b1111;
+                    end
+                    else if(ea == 4'b1111 && ma[2:0] == 3'b0) begin
+                        if(eb == 4'b1111 && mb[2:0] == 3'b0) begin  //inf +/- inf => nan
+                            nan = 1;
+                            rs = 1;
+                            rm = 5'b11111;
+                            re = 4'b1111;
+                        end
+                        else begin  //inf + x = inf
+                            inf = 1;
+                            rs = sa;
+                            rm = 5'b0;
+                            re = 4'b1111;
+
+                        end
+                    end
+                    else if(eb == 4'b1111 && ma[2:0] == 3'b0) begin //x + inf
+                        inf = 1;
+                        rs = sb;
+                        rm = 5'b0;
+                        re = 4'b1111;
+                    end
+
                     // 2. Align exponents and handle Sign-Magnitude
-                    if (sa == sb) begin
+                    else if (sa == sb) begin
                         // SAME SIGNS: Standard Addition
                         rs = sa;
                         if (ea >= eb) begin

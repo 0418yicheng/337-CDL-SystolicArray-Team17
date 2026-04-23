@@ -182,9 +182,10 @@ module tb_ahb_accelerator ();
 
     task load_inputs;
         input logic [63:0] inputs [7:0];
+        input logic [3:0] num_inputs;
         begin
             test_name = "Set Inputs";
-            for(int i = 0; i < 8; i++) begin
+            for(int i = 0; i < num_inputs; i++) begin
                 enqueue_write(10'h008, 3'b011, inputs[i]);
             end
             execute_transactions(8);
@@ -252,7 +253,7 @@ module tb_ahb_accelerator ();
             64'h38_38_38_38_38_38_38_38,
             64'h38_38_38_38_38_38_38_38,
             64'h38_38_38_38_38_38_38_38
-        });
+        }, 4'd8);
         
         // Loading Weights
         load_weights({
@@ -291,7 +292,7 @@ module tb_ahb_accelerator ();
             64'h38_38_38_38_38_38_38_38,
             64'h38_38_38_38_38_38_38_38,
             64'h38_38_38_38_38_38_38_38
-        });
+        }, 4'd8);
 
         load_weights({
             64'h38_38_38_38_38_38_38_38,
@@ -318,7 +319,7 @@ module tb_ahb_accelerator ();
             64'h0
         }, 4'd7);   //Reads one less, so should cause overrun
 
-        //NAN + Overrun
+        //inf + Overrun + nan from bias_adder
         load_weights({
             64'h77_f7_77_f7_77_f7_77_f7,
             64'h77_f7_77_f7_77_f7_77_f7,
@@ -339,8 +340,8 @@ module tb_ahb_accelerator ();
             64'h77_77_77_77_77_77_77_77,
             64'h77_77_77_77_77_77_77_77,
             64'h77_77_77_77_77_77_77_77
-        });
-        load_biases(64'd00_00_00_00_00_00_00_00);
+        }, 4'd8);
+        load_biases(64'd79_79_79_79_79_79_79_79);
         set_activation(2'd2);
         start_inference();
 
@@ -355,9 +356,65 @@ module tb_ahb_accelerator ();
             64'h79_79_79_79_79_79_79_79
         }, 4'd8);
 
-        //Inf + write 7 inputs
+        test_name = "Read Status Register";
+        enqueue_read(10'h020, 3'b001, 64'h0302);
+        execute_transactions(1);
+        finish_transactions();
+
+        //Write 7 inputs
+        load_inputs({
+            64'h0,
+            64'h38_38_38_38_38_38_38_38,
+            64'h39_39_39_39_39_39_39_39,
+            64'h40_40_40_40_40_40_40_40,
+            64'h41_41_41_41_41_41_41_41,
+            64'h38_38_38_38_38_38_38_38,
+            64'h39_39_39_39_39_39_39_39,
+            64'h40_40_40_40_40_40_40_40
+        }, 4'd7);
+
+        load_weights({
+            64'h38_00_00_00_00_00_00_00,
+            64'h00_38_00_00_00_00_00_00,
+            64'h00_00_38_00_00_00_00_00,
+            64'h00_00_00_38_00_00_00_00,
+            64'h00_00_00_00_38_00_00_00,
+            64'h00_00_00_00_00_38_00_00,
+            64'h00_00_00_00_00_00_38_00,
+            64'h04_00_00_00_00_00_00_38
+        });
+
+        load_biases(64'd0);
+        set_activation(2'd3);
+        start_inference();
+
+        read_outputs({
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38
+        }, 4'd8);
+
+        
+        //Buffer Occupancy
+        for(int i = 0; i < 9; i++) begin
+            enqueue_write(10'h008, 3'b011, 64'h34_95_18_43_90_58_19_00);
+        end
+        execute_transactions(9);
+        finish_transactions();
+        #(CLK_PERIOD * 5);
+
+        test_name = "Read Status Register";
+        enqueue_read(10'h020, 3'b001, 64'h1);
+        execute_transactions(1);
+        finish_transactions();
 
         //RAW
+        
         
 
         #(CLK_PERIOD * 10);

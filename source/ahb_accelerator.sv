@@ -33,7 +33,7 @@ module ahb_accelerator #(
         
 
     // Error signals
-    logic boe, oe, nan_flag, inf_flag;
+    logic boe, oe, nan_flag, inf_flag, bias_nan, bias_inf;
 
     // Bias and activation signals
     logic [63:0] bias;
@@ -72,8 +72,8 @@ module ahb_accelerator #(
         // Errors
         .boe(boe),
         .oe(oe),
-        .nan_flag(nan_flag),
-        .inf_flag(inf_flag),
+        .nan_flag(nan_flag | bias_nan),
+        .inf_flag(inf_flag | bias_inf),
 
         //Bias Adder
         .bias(bias),
@@ -139,7 +139,9 @@ module ahb_accelerator #(
         .bias(bias),
         .done(done),
         .biased_outputs(biased_out),
-        .bias_done(bias_done)
+        .bias_done(bias_done),
+        .inf(bias_inf),
+        .nan(bias_nan)
     );
 
     data_buffer db (
