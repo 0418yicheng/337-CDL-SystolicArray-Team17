@@ -416,9 +416,11 @@ module tb_ahb_accelerator ();
         #(CLK_PERIOD * 5);
 
         //RAW
-        test_name = "RAW";
-        enqueue_write(10'h010, 3'b011, 64'h9809328490);
-        enqueue_read(10'h010, 3'b011, 64'h9809328490);
+        test_name = "RAW + Byte Lane Steering";
+        // enqueue_write(10'h010, 3'b011, 64'h9809328490);
+        // enqueue_read(10'h010, 3'b011, 64'h9809328490);
+        enqueue_write(10'h011, 3'b001, 64'h3425);
+        enqueue_read(10'h010, 3'b011, {48'b0, 16'h3425, 8'b0});
         execute_transactions(2);
         finish_transactions();
 
@@ -436,6 +438,11 @@ module tb_ahb_accelerator ();
 
         test_name = "Try read";
         enqueue_read(10'h020, 3'b001, 64'h0);   
+        execute_transactions(1);
+        finish_transactions();
+
+        test_name = "Read from Write only";
+        enqueue_read(10'h000, 3'b011, 64'h0);
         execute_transactions(1);
         finish_transactions();
         
