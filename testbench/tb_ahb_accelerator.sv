@@ -292,7 +292,7 @@ module tb_ahb_accelerator ();
         });
 
         load_biases(64'hd2_d2_d2_d2_d2_d2_d2_d2);
-        set_activation(2'd2);
+        set_activation(2'd0);
         start_inference();
         read_outputs({
             64'h0,

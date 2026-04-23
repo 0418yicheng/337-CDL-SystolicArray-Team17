@@ -175,7 +175,7 @@ module ahb_subordinate (
                     caddr = 10'h008;
                     cwrite = 1'b1; 
                 end else if (addr >= 10'h010 && addr <= 10'h017) begin
-                    if (ready) n_bias = (hwdata & byte_mask) | (bias & ~byte_mask);
+                    n_bias = (hwdata & byte_mask) | (bias & ~byte_mask);
                 end else if (addr == 10'h022) begin
                     if (byte_mask[16]) begin
                         n_start_inference = hwdata[16];

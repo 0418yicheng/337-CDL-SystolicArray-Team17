@@ -17,6 +17,11 @@ module bias_adder #(
     logic [2:0] count, n_count;
     logic [63:0] n_outputs;
 
+    logic [7:0] a, b;
+    logic [3:0] ea, eb, re;
+    logic [4:0] ma, mb, rm;
+    logic sa, sb, rs;
+
     always_comb begin
         n_state = state;
         n_count = count;
@@ -31,10 +36,7 @@ module bias_adder #(
             LOAD: begin
                 bias_done = 1;
                 for(int i = 0; i < 8; i++) begin
-                    logic [7:0] a, b;
-                    logic [3:0] ea, eb, re;
-                    logic [4:0] ma, mb, rm;
-                    logic sa, sb, rs;
+                    
                     
                     a = outputs[i*8 +: 8];
                     b = bias[i*8 +: 8];
@@ -75,10 +77,11 @@ module bias_adder #(
                             rm = mb - (ma >> (eb - ea));
                         end
                         // Normalize for subtraction (shift left if leading zeros)
-                        if (rm[3] == 0 && re > 0) begin
+                        while(rm[3] == 0 && re > 0) begin
                             rm = rm << 1;
-                            re = re - 1;
+                            re = re -1;
                         end
+
                     end
 
                     n_outputs[i*8 +: 8] = {rs, re, rm[2:0]};
