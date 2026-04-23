@@ -160,61 +160,151 @@ module tb_ahb_accelerator ();
         BFM.wait_done();
     endtask
 
+    task load_weights;
+        input logic [63:0] weights[7:0];
+        begin
+            test_name = "Set Weights";
+            for(int i = 0; i < 8; i++) begin
+                enqueue_write(10'h000, 3'b011, weights[i]);
+            end
+
+            execute_transactions(8);
+            finish_transactions();
+            #(CLK_PERIOD * 5);
+
+            test_name = "Load Weights";
+            enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0002); // Load Weights
+            execute_transactions(1);
+            finish_transactions();
+            #(CLK_PERIOD * 30);
+        end
+    endtask
+
+    task load_inputs;
+        input logic [63:0] inputs [7:0];
+        begin
+            test_name = "Set Inputs";
+            for(int i = 0; i < 8; i++) begin
+                enqueue_write(10'h008, 3'b011, inputs[i]);
+            end
+            execute_transactions(8);
+            finish_transactions();
+            #(CLK_PERIOD * 5);
+        end
+    endtask
+
+    task load_biases;
+        input logic [63:0] biases;
+        begin
+            test_name = "Load Biases";
+            enqueue_write(10'h010, 3'b011, biases); // Biases
+            execute_transactions(1);
+            finish_transactions();
+            #(CLK_PERIOD*5);
+        end
+    endtask
+
+    task set_activation;
+        input logic [1:0] activation_mode;
+        begin
+            test_name = "Set Activation";
+            enqueue_write(10'h024, 3'b000, {62'd0, activation_mode}); // Activation: Identity
+            execute_transactions(1);
+            finish_transactions();
+        end
+    endtask
+
+    task start_inference;
+        begin
+            test_name = "Start Inference";
+        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0001); // Start Inference
+            execute_transactions(1);
+            finish_transactions();
+            #(CLK_PERIOD * 55);
+        end
+    endtask
+
+    task read_outputs;
+        input logic [63:0] expected_outputs [7:0];
+        begin
+            test_name = "Read Output";
+            for(int i = 0; i < 8; i++) begin
+                enqueue_read(10'h018, 3'b011, expected_outputs[i]); // Read Output
+            end
+            execute_transactions(8);
+            finish_transactions();
+            #(CLK_PERIOD * 10);
+        end
+    endtask
+
     initial begin
         reset_model();
         reset_dut();
 
         // Loading Inputs
-        test_name = "Set Inputs";
-        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
-        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
-        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
-        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
-        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
-        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
-        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
-        enqueue_write(10'h008, 3'b011, 64'h38_38_38_38_38_38_38_38);
-        execute_transactions(8);
-        finish_transactions();
-        #(CLK_PERIOD * 5);
+        load_inputs({
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38
+        });
+        
         // Loading Weights
-        test_name = "Set Weights";
-        enqueue_write(10'h000, 3'b011, 64'h38_00_00_00_00_00_00_00);
-        enqueue_write(10'h000, 3'b011, 64'h00_38_00_00_00_00_00_00);
-        enqueue_write(10'h000, 3'b011, 64'h00_00_38_00_00_00_00_00);
-        enqueue_write(10'h000, 3'b011, 64'h00_00_00_38_00_00_00_00);
-        enqueue_write(10'h000, 3'b011, 64'h00_00_00_00_38_00_00_00);
-        enqueue_write(10'h000, 3'b011, 64'h00_00_00_00_00_38_00_00);
-        enqueue_write(10'h000, 3'b011, 64'h00_00_00_00_00_00_38_00);
-        enqueue_write(10'h000, 3'b011, 64'h04_00_00_00_00_00_00_38);
-        execute_transactions(8);
-        finish_transactions();
-        #(CLK_PERIOD * 5);
+        load_weights({
+            64'h38_00_00_00_00_00_00_00,
+            64'h00_38_00_00_00_00_00_00,
+            64'h00_00_38_00_00_00_00_00,
+            64'h00_00_00_38_00_00_00_00,
+            64'h00_00_00_00_38_00_00_00,
+            64'h00_00_00_00_00_38_00_00,
+            64'h00_00_00_00_00_00_38_00,
+            64'h04_00_00_00_00_00_00_38
+        });
+        
 
-        test_name = "Load Biases";
-        enqueue_write(10'h010, 3'b011, 64'h0); // Biases
-        execute_transactions(1);
-        finish_transactions();
-        test_name = "Activation: Identity";
-        enqueue_write(10'h024, 3'b000, 64'h0000_0000_0000_0002); // Activation: Identity
-        execute_transactions(1);
-        finish_transactions();
-        test_name = "Load Weights";
-        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0002); // Load Weights
-        execute_transactions(1);
-        finish_transactions();
-        #(CLK_PERIOD * 30);
-        test_name = "Start Inference";
-        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0001); // Start Inference
-        execute_transactions(1);
-        finish_transactions();
-        #(CLK_PERIOD * 55);
+        load_biases(64'b0);
+        set_activation(2'd2);
+        start_inference();
+        read_outputs({
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38
+        });
 
-        test_name = "Read Output";
-        enqueue_read(10'h018, 3'b011, 64'h0203_0404_0203_0203); // Read Output
-        execute_transactions(1);
-        finish_transactions();
-        #(CLK_PERIOD * 10);
+        load_weights({
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38,
+            64'h38_38_38_38_38_38_38_38
+        });
+
+        load_biases(64'hd2_d2_d2_d2_d2_d2_d2_d2);
+        set_activation(2'd2);
+        start_inference();
+        read_outputs({
+            64'h0,
+            64'h0,
+            64'h0,
+            64'h0,
+            64'h0,
+            64'h0,
+            64'h0,
+            64'h0
+        });
+        
 
         #(CLK_PERIOD * 10);
 

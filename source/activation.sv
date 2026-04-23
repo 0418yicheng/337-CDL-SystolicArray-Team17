@@ -41,12 +41,16 @@ module activation #(
             CALC: begin
                 if(activation_mode == 0) begin  //RELU
                     for(int i = 0; i < 8; i++) begin
-                        n_output[i*8 +: 8] = biased_outputs[7] ? 8'd0 : biased_outputs[i*8 +: 8];
+                        logic[7:0] curr_out;
+                        curr_out = biased_outputs[i*8 +: 8];
+                        n_output[i*8 +: 8] = curr_out[7] ? 8'd0 : curr_out;
                     end
                 end
                 else if(activation_mode == 2'd1) begin  //Binary
                     for(int i = 0; i < 8; i++) begin
-                        n_output[i*8 +: 8] = biased_outputs[7] ? 8'd0 : 8'd1;
+                        logic [7:0] curr_out;
+                        curr_out = biased_outputs[i*8 +: 8];
+                        n_output[i*8 +: 8] = curr_out[7] ? 8'd0 : 8'd1;
                     end
                 end
                 else if(activation_mode == 2'd2) begin  //Identity

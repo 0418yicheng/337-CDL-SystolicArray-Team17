@@ -38,8 +38,10 @@ module bias_adder #(
                     
                     a = outputs[i*8 +: 8];
                     b = bias[i*8 +: 8];
-                    sa = a[7]; sb = b[7];
-                    ea = a[6:3]; eb = b[6:3];
+                    sa = a[7]; 
+                    sb = b[7];
+                    ea = a[6:3]; 
+                    eb = b[6:3];
 
                     // 1. Extract Mantissa with hidden bit
                     ma = (ea == 0) ? {2'b0, a[2:0]} : {2'b01, a[2:0]};
