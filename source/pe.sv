@@ -157,7 +157,7 @@ module pe #(
                             e_small = input_sum[6:3];
                             e_diff  = e_large - e_small;
                             
-                            // Align Product: m_prod[6] is hidden bit -> move to [7].
+                            // m_prod[6] is hidden bit -> move to [7].
                             // m_prod[5:0] are the 6 fractional bits. 
                             // We add a 0 at the end to fill the 9-bit width.
                             m_large = {1'b0, m_prod[6:0], 1'b0}; 

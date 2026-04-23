@@ -30,7 +30,7 @@ module ahb_accelerator #(
     logic input_read;
     logic busy;
     logic done, bias_done;
-    logic [2:0] input_count;
+    logic [3:0] input_count;
         
 
     // Error signals

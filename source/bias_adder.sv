@@ -45,7 +45,7 @@ module bias_adder #(
                         ea = a[6:3]; 
                         eb = b[6:3];
 
-                        // 1. Extract Mantissa with hidden bit
+                        // Extract Mantissa with hidden bit
                         ma = (ea == 0) ? {2'b0, a[2:0]} : {2'b01, a[2:0]};
                         mb = (eb == 0) ? {2'b0, b[2:0]} : {2'b01, b[2:0]};
 
@@ -78,9 +78,9 @@ module bias_adder #(
                             re = 4'b1111;
                         end
 
-                        // 2. Align exponents and handle Sign-Magnitude
+                        // Align exponents and handle Sign-Magnitude
                         else if (sa == sb) begin
-                            // SAME SIGNS: Standard Addition
+                            // Standard Addition
                             rs = sa;
                             if (ea >= eb) begin
                                 re = ea;
@@ -95,7 +95,7 @@ module bias_adder #(
                                 re = re + 1;
                             end
                         end else begin
-                            // DIFFERENT SIGNS: Subtraction
+                            // Subtraction
                             if ((ea > eb) || (ea == eb && ma >= mb)) begin
                                 rs = sa;
                                 re = ea;
@@ -129,7 +129,7 @@ module bias_adder #(
                     ea = a[6:3]; 
                     eb = b[6:3];
 
-                    // 1. Extract Mantissa with hidden bit
+                    // Extract Mantissa with hidden bit
                     ma = (ea == 0) ? {2'b0, a[2:0]} : {2'b01, a[2:0]};
                     mb = (eb == 0) ? {2'b0, b[2:0]} : {2'b01, b[2:0]};
 
@@ -162,9 +162,9 @@ module bias_adder #(
                         re = 4'b1111;
                     end
 
-                    // 2. Align exponents and handle Sign-Magnitude
+                    // Align exponents and handle Sign-Magnitude
                     else if (sa == sb) begin
-                        // SAME SIGNS: Standard Addition
+                        // Standard Addition
                         rs = sa;
                         if (ea >= eb) begin
                             re = ea;
@@ -179,7 +179,7 @@ module bias_adder #(
                             re = re + 1;
                         end
                     end else begin
-                        // DIFFERENT SIGNS: Subtraction
+                        // Subtraction
                         if ((ea > eb) || (ea == eb && ma >= mb)) begin
                             rs = sa;
                             re = ea;
