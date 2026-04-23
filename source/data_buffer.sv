@@ -4,8 +4,7 @@ module data_buffer #(
     // parameters
 ) (
     input logic clk, n_rst, input_write, input_read, weight_write, weight_read, output_read, done, new_input,
-    input logic [3:0] weight_row, input_row, output_row, 
-    input logic [2:0] input_count,
+    input logic [2:0] weight_row, input_row, output_row, input_count,
     input logic [63:0] input_wdata, weight_wdata, activations,
     output logic [63:0] input_rdata, weight_rdata, output_rdata,
     output logic inference_done
@@ -173,64 +172,42 @@ module data_buffer #(
         end
 
         if (output_sel) begin
-            if (output_row_write == 0 && input_count >= 0) begin
+            if (output_row_write == 0) begin
                 start_output0_next = 1;
                 read_write_output0_next = 1;
                 activations_latch0_next = activations;
-                if (input_count < 0) begin
-                   activations_latch0_next = '0; 
-                end
-                end
                 output_row_write_next = output_row_write + 1;
-            end else if (output_row_write == 1 && input_count >= 1) begin
+            end else if (output_row_write == 1) begin
                 start_output1_next = 1;
                 read_write_output1_next = 1;
                 activations_latch1_next = activations;
-                if (input_count < 1) begin
-                   activations_latch1_next = '0; 
-                end
                 output_row_write_next = output_row_write + 1;
-            end else if (output_row_write == 2 && input_count >= 2) begin
+            end else if (output_row_write == 2) begin
                 start_output2_next = 1;
                 read_write_output2_next = 1;
                 activations_latch2_next = activations;
-                if (input_count < 2) begin
-                   activations_latch2_next = '0; 
-                end
                 output_row_write_next = output_row_write + 1;
-            end else if (output_row_write == 3 && input_count >= 3) begin
+            end else if (output_row_write == 3) begin
                 start_output3_next = 1;
                 read_write_output3_next = 1;
                 activations_latch3_next = activations;
-                if (input_count < 3) begin
-                   activations_latch3_next = '0; 
-                end
                 output_row_write_next = output_row_write + 1;
-            end else if (output_row_write ==4 && input_count >= 4) begin
+            end else if (output_row_write ==4) begin
                 start_output4_next = 1;
                 read_write_output4_next = 1;
                 activations_latch4_next = activations;
-                if (input_count < 4) begin
-                   activations_latch4_next = '0; 
-                end
                 output_row_write_next = output_row_write + 1;
-            end else if (output_row_write == 5 && input_count >= 5) begin
+            end else if (output_row_write == 5) begin
                 start_output5_next = 1;
                 read_write_output5_next = 1;
                 activations_latch5_next = activations;
-                if (input_count < 5) begin
-                   activations_latch5_next = '0; 
-                end
                 output_row_write_next = output_row_write + 1;
-            end else if (output_row_write == 6 && input_count >= 6) begin
+            end else if (output_row_write == 6) begin
                 start_output6_next = 1;
                 read_write_output6_next = 1;
                 activations_latch6_next = activations;
-                if (input_count < 6) begin
-                   activations_latch6_next = '0; 
-                end
                 output_row_write_next = output_row_write + 1;
-            end else if (output_row_write == 7 && input_count >= 7) begin
+            end else if (output_row_write == 7) begin
                 start_output7_next = 1;
                 read_write_output7_next = 1;
                 activations_latch7_next = activations;
@@ -240,6 +217,7 @@ module data_buffer #(
                 output_sel_next = 0;
             end 
 
+        end
         if (weight_write || weight_read) begin
             if (weight_row % 2 == 0) begin
                 start_weight0_next = 1;
