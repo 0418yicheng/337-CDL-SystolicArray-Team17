@@ -146,9 +146,6 @@ module systolic_array #(
                 end
             end
 
-            IDLE_ERR: begin
-            end
-
             WLOAD1: begin
                 busy = 1;
                 n_state = WWAIT1;
