@@ -58,7 +58,7 @@ module ahb_subordinate (
     logic n_inf_reg, inf_reg;
     logic n_ft_reg, ft_reg;
 
-    // --- Byte Mask Generator ---
+    // Byte Mask Generator
     logic [63:0] byte_mask;
     always_comb begin
         case (size)
@@ -78,10 +78,9 @@ module ahb_subordinate (
         is_error_read_lo = read_en && (addr == 10'h020 || addr == 10'h021);
         is_error_read_hi = read_en && ((addr == 10'h021) || (addr == 10'h020 && byte_mask[8]));
         
-        // Check if busy AND trying to write a 1 to the load_weights bit (hwdata[17]) at offset 0x22
         is_busy_access = write && (addr == 10'h022) && byte_mask[16] && hwdata[17] && busy;
 
-        // Sticky Error Flags
+        // latch Error Flags
         n_boe_reg = (boe_reg & ~is_error_read_lo) | boe;
         n_oe_reg  = (oe_reg & ~is_error_read_lo) | oe;
         n_nan_reg = (nan_reg & ~is_error_read_hi) | nan_flag;
@@ -114,7 +113,7 @@ module ahb_subordinate (
         if (inference_done) n_start_inference = 1'b0;
         if (weights_loaded) n_load_weights = 1'b0;
 
-        // --- Error State Machine ---
+        // Error State Machine
         if (err_state == 2'd1) begin
             hresp = 1'b1;
             hready = 1'b0;
@@ -129,21 +128,20 @@ module ahb_subordinate (
             n_read_en = 1'b0;
         end else begin
         
-            // --- Controller Access Stall Check ---
+            // Controller Access Stall Check
             if (!ready && ((write && (addr >= 10'h000 && addr <= 10'h00F)) || (read_en && (addr >= 10'h018 && addr <= 10'h01F)))) begin
                 hready = 1'b0;
             end
 
-            // --- Pipeline Control ---
+            // Pipeline Control
             if (hready == 1'b0) begin
-                // Freeze the pipeline state during a stall so we don't lose the transaction
                 n_write = write;
                 n_read_en = read_en;
             end else begin
-                // Normal Address Phase (only latch new signals when not stalled)
-                if (hsel && (htrans == 2'b10)) begin       
+                // Normal Address Phase
+                if (hsel && (htrans == 2'b10)) begin
 
-                    // Check strictly for Memory Mapping Violations
+                    // Memory Mapping Violations
                     if (haddr > 10'h024 ||
                        (hwrite && ( (haddr >= 10'h018 && haddr <= 10'h01F) ||
                                     (haddr == 10'h020 || haddr == 10'h021) ||
@@ -151,9 +149,9 @@ module ahb_subordinate (
                        (!hwrite && ( (haddr >= 10'h000 && haddr <= 10'h007) ||
                                      (haddr >= 10'h008 && haddr <= 10'h00F) ))) begin
 
-                        hresp = 1'b1;       // Combinational assertion to pass the BFM's 0-wait state check!
-                        n_err_state = 2'd1; // Trigger 2-cycle standard AHB Error
-                        n_write = 1'b0;     // Cancel the invalid transaction
+                        hresp = 1'b1;
+                        n_err_state = 2'd1;
+                        n_write = 1'b0;
                         n_read_en = 1'b0;
 
                     end else begin
@@ -165,7 +163,7 @@ module ahb_subordinate (
                 end
             end
 
-            // --- Data Phase: Write ---
+            // Data Phase: Write
             if (write) begin
                 if (addr >= 10'h000 && addr <= 10'h007) begin
                     cwdata = hwdata & byte_mask;
@@ -191,7 +189,7 @@ module ahb_subordinate (
                 end
             end
 
-            // --- Data Phase: Read ---
+            // Data Phase: Read
             if (read_en) begin
                 if (addr >= 10'h010 && addr <= 10'h017) begin
                     hrdata = bias;
@@ -214,7 +212,7 @@ module ahb_subordinate (
         end
     end
 
-    // --- Sequential Logic ---
+    // Sequential Logic
     always_ff @(posedge clk or negedge n_rst) begin
         if (!n_rst) begin
             addr <= 10'b0;
