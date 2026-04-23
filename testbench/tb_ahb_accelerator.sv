@@ -418,8 +418,6 @@ module tb_ahb_accelerator ();
 
         //RAW
         test_name = "RAW + Byte Lane Steering";
-        // enqueue_write(10'h010, 3'b011, 64'h9809328490);
-        // enqueue_read(10'h010, 3'b011, 64'h9809328490);
         enqueue_write(10'h011, 3'b001, 64'h3425);
         enqueue_read(10'h010, 3'b011, {48'b0, 16'h3425, 8'b0});
         execute_transactions(2);
@@ -427,6 +425,7 @@ module tb_ahb_accelerator ();
 
         #(CLK_PERIOD * 2);
 
+        // Failed Transaction device was busy
         test_name = "Fail Transaction";
         enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0001); // Start Inference
         execute_transactions(1);
@@ -442,6 +441,7 @@ module tb_ahb_accelerator ();
         execute_transactions(1);
         finish_transactions();
 
+        // Read from Write only region
         test_name = "Read from Write only";
         enqueue_read(10'h000, 3'b011, 64'h0);
         execute_transactions(1);
