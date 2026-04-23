@@ -77,7 +77,7 @@ module ahb_subordinate (
         is_error_read = read_en && (addr == 10'h020 || addr == 10'h021);
         
         // Check if busy AND trying to write a 1 to the load_weights bit (hwdata[17]) at offset 0x22
-        is_busy_access = write && (addr == 10'h022) && byte_mask[16] && hwdata[17] && busy && ready;
+        is_busy_access = write && (addr == 10'h022) && byte_mask[16] && hwdata[17] && busy;
 
         // Sticky Error Flags
         n_boe_reg = (boe_reg & ~is_error_read) | boe;

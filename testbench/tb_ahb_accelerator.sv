@@ -218,7 +218,7 @@ module tb_ahb_accelerator ();
     task start_inference;
         begin
             test_name = "Start Inference";
-        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0001); // Start Inference
+            enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0001); // Start Inference
             execute_transactions(1);
             finish_transactions();
             #(CLK_PERIOD * 55);
@@ -245,14 +245,14 @@ module tb_ahb_accelerator ();
 
         // Loading Inputs
         load_inputs({
-            64'h38_38_38_38_38_38_38_38,
-            64'h38_38_38_38_38_38_38_38,
-            64'h38_38_38_38_38_38_38_38,
-            64'h38_38_38_38_38_38_38_38,
-            64'h38_38_38_38_38_38_38_38,
-            64'h38_38_38_38_38_38_38_38,
-            64'h38_38_38_38_38_38_38_38,
-            64'h38_38_38_38_38_38_38_38
+            64'h37_39_39_39_39_39_39_39,
+            64'h36_38_38_38_38_38_38_38,
+            64'h35_38_38_38_38_38_38_38,
+            64'h34_38_38_38_38_38_38_38,
+            64'h33_38_38_38_38_38_38_38,
+            64'h32_38_38_38_38_38_38_38,
+            64'h31_38_38_38_38_38_38_38,
+            64'h30_38_38_38_38_38_38_38
         }, 4'd8);
         
         // Loading Weights
@@ -362,6 +362,7 @@ module tb_ahb_accelerator ();
         finish_transactions();
 
         //Write 7 inputs
+        test_name = "Buffer Overload";
         load_inputs({
             64'h0,
             64'h38_38_38_38_38_38_38_38,
@@ -412,9 +413,31 @@ module tb_ahb_accelerator ();
         enqueue_read(10'h020, 3'b001, 64'h1);
         execute_transactions(1);
         finish_transactions();
+        #(CLK_PERIOD * 5);
 
         //RAW
-        
+        test_name = "RAW";
+        enqueue_write(10'h010, 3'b011, 64'h9809328490);
+        enqueue_read(10'h010, 3'b011, 64'h9809328490);
+        execute_transactions(2);
+        finish_transactions();
+
+        #(CLK_PERIOD * 2);
+
+        test_name = "Fail Transaction";
+        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0001); // Start Inference
+        execute_transactions(1);
+        #(CLK_PERIOD * 20);
+
+        test_name = "Load Weight";
+        enqueue_write(10'h022, 3'b000, 64'h0000_0000_0000_0002); // Load Weights
+        execute_transactions(1);
+        #(CLK_PERIOD);
+
+        test_name = "Try read";
+        enqueue_read(10'h020, 3'b001, 64'h0);   
+        execute_transactions(1);
+        finish_transactions();
         
 
         #(CLK_PERIOD * 10);

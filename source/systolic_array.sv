@@ -31,6 +31,8 @@ module systolic_array #(
                                 WWAIT1, WWAIT2, WWAIT3, WWAIT4,
                                 ILOAD1, ILOAD2, WAIT, CALC, OLOAD} state_t;
 
+    logic n_done;
+
     state_t state;
     state_t n_state;
 
@@ -113,7 +115,7 @@ module systolic_array #(
         n_in_count = in_count;
         n_out_count = out_count;
         man_load = 0;
-        done = 0;
+        n_done = 0;
         busy = 0;
 
 
@@ -278,7 +280,7 @@ module systolic_array #(
             OLOAD: begin
                 busy = 1;
                 man_load = 1;
-                done = 1;
+                n_done = 1;
                 for(int c = 0; c < 8; c++) begin
                     n_output_mat[0][c] = int_sums[7][c];
                     for(int r = 1; r < 8; r++) begin
@@ -310,6 +312,7 @@ module systolic_array #(
 
             in_count <= 4'd1;
             out_count <= 4'd1;
+            done <= 0;
         end
         else begin
             state <= n_state;
@@ -318,6 +321,7 @@ module systolic_array #(
 
             in_count <= n_in_count;
             out_count <= n_out_count;
+            done <= n_done;
         end
     end
 endmodule

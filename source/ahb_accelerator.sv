@@ -23,13 +23,14 @@ module ahb_accelerator #(
     logic cwrite;
     logic cread;
     logic [63:0] input_rdata, weight_rdata, output_rdata;
-    logic [2:0] input_row, weight_row, output_row;
+    logic [3:0] input_row, weight_row;
+    logic [3:0] output_row;
     logic new_input;
     logic [63:0] array_in, array_out, biased_out, activations;
     logic input_read;
     logic busy;
     logic done, bias_done;
-    logic [3:0] input_count;
+    logic [2:0] input_count;
         
 
     // Error signals

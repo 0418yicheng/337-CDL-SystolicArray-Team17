@@ -9,12 +9,12 @@ filesets:
         file_type: systemVerilogSource
         depend:
             - "u337mg030:ece337:activation:1.0.0"
-            - "u337mg157:ece337:ahb_subordinate:1.0.0"
+            - "u337mg030:ece337:ahb_subordinate:1.0.0"
             - "u337mg030:ece337:bias_adder:1.0.0"
-            - "u337mg187:ece337:controller:1.0.0"
-            - "u337mg187:ece337:data_buffer:1.0.0"
+            - "u337mg030:ece337:controller:1.0.0"
+            - "u337mg030:ece337:data_buffer:1.0.0"
             - "u337mg030:ece337:systolic_array:1.0.0"
-            - "u337mg187:ece337:sram_bank:1.0.0"
+            - "u337mg030:ece337:sram_bank:1.0.0"
 
     synth:
         depend:

@@ -28,8 +28,41 @@ module activation #(
             IDLE: begin
                 if(bias_done) begin
                     n_state = CALC;
-                    for(int i = 0; i < 8; i++) begin
-                        n_output[i*8 +: 8] = biased_outputs[7] ? 8'd0 : biased_outputs[i*8 +: 8];
+                    if(activation_mode == 0) begin  //RELU
+                        for(int i = 0; i < 8; i++) begin
+                            logic[7:0] curr_out;
+                            curr_out = biased_outputs[i*8 +: 8];
+                            n_output[i*8 +: 8] = curr_out[7] ? 8'd0 : curr_out;
+                        end
+                    end
+                    else if(activation_mode == 2'd1) begin  //Binary
+                        for(int i = 0; i < 8; i++) begin
+                            logic [7:0] curr_out;
+                            curr_out = biased_outputs[i*8 +: 8];
+                            n_output[i*8 +: 8] = curr_out[7] ? 8'd0 : 8'd1;
+                        end
+                    end
+                    else if(activation_mode == 2'd2) begin  //Identity
+                        n_output = biased_outputs;
+                    end
+                    else if(activation_mode == 2'd3) begin  //Leaky Relu
+                        //0.25 = 0_0101_000 = 2^(-2)
+                        for(int i = 0; i < 8; i++) begin
+                            logic[7:0] curr_val;
+                            curr_val = biased_outputs[i*8 +:8];
+
+                            if(curr_val[7]) begin
+                                if(curr_val[6:3] >= 4'd2)
+                                    n_output[i*8 +: 8] = {1'b1, curr_val[6:3]-4'd2, curr_val[2:0]};
+                                else
+                                    n_output[i*8 +: 8] = 8'd0; //If the resulting exponent would be less than 0
+
+                            end
+                            else
+                                n_output[i*8+:8] = biased_outputs[i*8+:8];
+                        end
+
+
                     end
                     n_done = 1;
                 end

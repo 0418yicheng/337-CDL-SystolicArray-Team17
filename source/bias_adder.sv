@@ -31,10 +31,92 @@ module bias_adder #(
         case(state)
             IDLE: begin
                 bias_done = 0;
-                if(done)
-                    n_state = LOAD;
-                
                 n_outputs = 64'd0;
+
+                if(done) begin
+                    n_state = LOAD;
+                    // bias_done = 1;
+                    
+                    for(int i = 0; i < 8; i++) begin
+                        a = outputs[i*8 +: 8];
+                        b = bias[i*8 +: 8];
+                        sa = a[7]; 
+                        sb = b[7];
+                        ea = a[6:3]; 
+                        eb = b[6:3];
+
+                        // 1. Extract Mantissa with hidden bit
+                        ma = (ea == 0) ? {2'b0, a[2:0]} : {2'b01, a[2:0]};
+                        mb = (eb == 0) ? {2'b0, b[2:0]} : {2'b01, b[2:0]};
+
+                        //Check if either output or bias are inf, then nan or inf
+                        if((ea == 4'b1111 && ma[2:0] != 3'b0) || (eb == 4'b1111 && mb[2:0] != 3'b0)) begin
+                            nan = 1;
+                            rs = 1;
+                            rm = 5'b11111;
+                            re = 4'b1111;
+                        end
+                        else if(ea == 4'b1111 && ma[2:0] == 3'b0) begin
+                            if(eb == 4'b1111 && mb[2:0] == 3'b0) begin  //inf +/- inf => nan
+                                nan = 1;
+                                rs = 1;
+                                rm = 5'b11111;
+                                re = 4'b1111;
+                            end
+                            else begin  //inf + x = inf
+                                inf = 1;
+                                rs = sa;
+                                rm = 5'b0;
+                                re = 4'b1111;
+
+                            end
+                        end
+                        else if(eb == 4'b1111 && ma[2:0] == 3'b0) begin //x + inf
+                            inf = 1;
+                            rs = sb;
+                            rm = 5'b0;
+                            re = 4'b1111;
+                        end
+
+                        // 2. Align exponents and handle Sign-Magnitude
+                        else if (sa == sb) begin
+                            // SAME SIGNS: Standard Addition
+                            rs = sa;
+                            if (ea >= eb) begin
+                                re = ea;
+                                rm = ma + (mb >> (ea - eb));
+                            end else begin
+                                re = eb;
+                                rm = mb + (ma >> (eb - ea));
+                            end
+                            // Normalize for addition (shift right if carry)
+                            if (rm[4]) begin
+                                rm = rm >> 1;
+                                re = re + 1;
+                            end
+                        end else begin
+                            // DIFFERENT SIGNS: Subtraction
+                            if ((ea > eb) || (ea == eb && ma >= mb)) begin
+                                rs = sa;
+                                re = ea;
+                                rm = ma - (mb >> (ea - eb));
+                            end else begin
+                                rs = sb;
+                                re = eb;
+                                rm = mb - (ma >> (eb - ea));
+                            end
+                            // Normalize for subtraction (shift left if leading zeros)
+                            for(int i = 0; i < 8 && rm[3] == 0 && re > 0; i++) begin
+                                rm = rm << 1;
+                                re = re -1;
+                            end
+
+                        end
+
+                        n_outputs[i*8 +: 8] = {rs, re, rm[2:0]};
+                    end
+                end
+                
             end
             LOAD: begin
                 bias_done = 1;
@@ -108,7 +190,7 @@ module bias_adder #(
                             rm = mb - (ma >> (eb - ea));
                         end
                         // Normalize for subtraction (shift left if leading zeros)
-                        while(rm[3] == 0 && re > 0) begin
+                        for(int i = 0; i < 8 && rm[3] == 0 && re > 0; i++) begin
                             rm = rm << 1;
                             re = re -1;
                         end
